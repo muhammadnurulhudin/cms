@@ -22,9 +22,9 @@
             ]
         }
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "require": {
-        "yajra/laravel-datatables-oracle": "^10.0@dev"
+        "yajra/laravel-datatables-oracle": "^10.1"
     }
 
 }
