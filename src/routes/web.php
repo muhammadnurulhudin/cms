@@ -38,7 +38,7 @@ if (request()->segment(1) == $admin_path && !in_array(request()->segment(2),['lo
                     if ($value->crud) {
                         if (in_array('read', $value->crud)) {
                             Route::get( $value->name, 'index')->name($value->name.'.index');
-                            Route::match(['get', 'post'], $admin_path. '/' . $value->name . '/dataindex/', 'dataindex');
+                            Route::match(['get', 'post'],   $value->name . '/dataindex', 'dataindex');
                         }
                         if (in_array('create', $value->crud)) {
                             Route::get($value->name . '/create', 'form');

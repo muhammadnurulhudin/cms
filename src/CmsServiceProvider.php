@@ -1,6 +1,8 @@
 <?php
 namespace Udiko\Cms;
 use Illuminate\Support\ServiceProvider;
+
+// use Intervention\Image\ImageServiceProvider;
 use Config;
 class CmsServiceProvider extends ServiceProvider
 {
@@ -28,6 +30,8 @@ class CmsServiceProvider extends ServiceProvider
     public function register()
     {
         Config::set('auth.providers.users.model', 'Udiko\Cms\Models\User');
+        // $this->app->register(ImageServiceProvider::class);
+
     }
 
 

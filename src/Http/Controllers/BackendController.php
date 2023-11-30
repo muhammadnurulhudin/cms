@@ -1,10 +1,10 @@
 <?php
 namespace Udiko\Cms\Http\Controllers;
-
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Udiko\Cms\Models\Post;
 use Illuminate\Http\Request;
+use Yajra\DataTables\Facades\DataTables;
 class BackendController extends Controller
 {
     public function __construct()
@@ -136,7 +136,7 @@ class BackendController extends Controller
         $find = Post::with('group')->find($id);
 
         // return $find;
-        if ($id && empty($find) || (!empty($find) && $find->type != get_module_info('post_type'))) {
+        if ($id && empty($find) || (!empty($find) && $find->type != get_post_type())) {
             return redirect(admin_url(get_post_type()))->with('warning', get_module_info('title') . ' Tidak Ditemukan');
         }
         $field = (!empty($find->data_field)) ? json_decode($find->data_field, true) : NULL;
@@ -145,7 +145,6 @@ class BackendController extends Controller
         if (empty($id)) {
             if (in_array(get_post_type(), ['media']))
                 abort(404);
-            return $req->user()->post;
             $newpost = $req->user()->post()->create([
                 'type' => get_post_type(),
                 'url' => url(get_post_type() . '/' . rand()),
@@ -311,7 +310,7 @@ class BackendController extends Controller
         //     return back()->with('success','Pemberitahuan Ke Pemohon berhasil dikirim');
         //   }
         // }
-        return view('admin.form', ['edit' => $find, 'field' => $field, 'looping_data' => $looping_data]);
+        return view('views::backend.form', ['edit' => $find, 'field' => $field, 'looping_data' => $looping_data]);
     }
 
     public function delete(Post $post, $id)

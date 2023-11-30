@@ -1,7 +1,7 @@
-@extends('admin.layout.app',['title'=>get_module_info('title_crud')])
+@extends('views::backend.layout.app',['title'=>get_module_info('title_crud')])
 @section('content')
 <div class="row">
-<div class="col-lg-12"><h3 style="font-weight:normal"> <i class="fa fa-tags" aria-hidden="true"></i>{{get_module_info('title_crud')}} <div class="pull-right">@if(is_admin())<a href="javascript:void(0)" onclick="$('input[type=text]' ).val('');$('textarea').val('');$('.save').val('add');$('.modtitle').html('Tambah');$('.modal').modal('show')" class="btn btn-outline-primary btn-sm "> <i class="fa fa-plus" aria-hidden></i> Tambah</a>@endif 
+<div class="col-lg-12"><h3 style="font-weight:normal"> <i class="fa fa-tags" aria-hidden="true"></i>{{get_module_info('title_crud')}} <div class="pull-right">@if(is_admin())<a href="javascript:void(0)" onclick="$('input[type=text]' ).val('');$('textarea').val('');$('.save').val('add');$('.modtitle').html('Tambah');$('.modal').modal('show')" class="btn btn-outline-primary btn-sm "> <i class="fa fa-plus" aria-hidden></i> Tambah</a>@endif
  <a href="{{admin_url(get_post_type())}}" class="btn btn-outline-danger btn-sm" data-toggle="tooltip" title="Kembali Ke Index Data"> <i class="fa fa-undo" aria-hidden></i> Kembali</a></div></h3>
   <br>
 <table class="table table-hover table-bordered dtclient" id="sampleTable">

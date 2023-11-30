@@ -10,7 +10,7 @@ return [
             'icon' => 'fa-newspaper-o',
             'data_title' => 'Judul Berita',
             'custom_column' => false,
-            'post_parent' => ['Pengumuman','pengumuman'],
+            'post_parent' => false,
             'custom_field' => array(
                 ['Reporter', 'text'],
                 ['Tanggal Entry', 'text']

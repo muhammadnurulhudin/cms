@@ -23,5 +23,8 @@
         }
     },
     "minimum-stability": "dev",
-    "require": {}
+    "require": {
+        "yajra/laravel-datatables-oracle": "^10.0@dev"
+    }
+
 }

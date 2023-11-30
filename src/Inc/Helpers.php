@@ -30,6 +30,25 @@ if (!function_exists('media_store')) {
         ]);
     }
 }
+if (!function_exists('help')) {
+    function help($val){
+    return '<i class="fa fa-question-circle pointer" data-toggle="tooltip" title="'.$val.'" aria-hidden></i>';
+  }
+}
+
+if (!function_exists('thumb')) {
+    function thumb($src=false){
+    if($src && !is_dir(public_path($src))):
+    if(file_exists(public_path($src))){
+      return url($src);
+    }else {
+      return url('backend/images/noimage.png');
+    }
+  else:
+    return url('backend/images/noimage.png');
+  endif;
+  }
+}
 if (!function_exists('cache_content_initial')) {
     function cache_content_initial()
     {
@@ -281,6 +300,16 @@ if (!function_exists('is_year')) {
         if (strlen($year) == 4 && is_numeric($year) && $year > 2000 && $year < 2050)
             return true;
     }
+}
+if (!function_exists('delete_post_url')) {
+    function delete_post_url($id){
+    return admin_url(get_post_type().'/delete/'.$id);
+  }
+}
+if (!function_exists('edit_post_url')) {
+    function edit_post_url($id){
+    return admin_url(get_post_type().'/edit/'.$id);
+  }
 }
 if (!function_exists('is_day')) {
     function is_day($day)

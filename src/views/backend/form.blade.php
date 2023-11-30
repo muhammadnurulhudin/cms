@@ -1,8 +1,8 @@
 @if(get_post_type()=='media')
-@include('admin.form-media')
+@include('views::backend.form-media')
 @elseif(get_post_type()=='menu')
-@include('admin.form-menu')
+@include('views::backend.form-menu')
 
 @else
-@include('admin.form-default')
+@include('views::backend.form-default')
 @endif

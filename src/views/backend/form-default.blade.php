@@ -1,4 +1,4 @@
-@extends('admin.layout.app',['title'=>get_module_info('title_crud')])
+@extends('views::backend.layout.app',['title'=>get_module_info('title_crud')])
 @section('content')
 <form class="editor-form" action="{{URL::full()}}" method="post" enctype="multipart/form-data">
    @csrf
@@ -30,13 +30,13 @@
          if(isset(get_module_info('post_parent')[1])){
             if(isset(get_module_info('post_parent')[2]) && get_module_info('post_parent')[2]!='all'){
                   // echo "<script>alert('oi');</script>";
-                  $par =  App\Models\Post::withwherehas('group',function($q){
+                  $par =  Udiko\Cms\Models\Post::withwherehas('group',function($q){
                      $q->where('slug',get_module_info('post_parent')[2]);
                   })->whereType(get_module_info('post_parent')[1])->whereStatus('publish')->select('id','title')->get();
 
                }
                else{
-                  $par =  App\Models\Post::wherePostType(get_module_info('post_parent')[1])->wherePostStatus('publish')->select('id','title')->get();
+                  $par =  Udiko\Cms\Models\Post::wherePostType(get_module_info('post_parent')[1])->wherePostStatus('publish')->select('id','title')->get();
 
             }
             }
@@ -162,7 +162,7 @@
          <select  class="form-control form-control-sm" id="demoSelect" multiple="" name="post_group[]">
 
             <optgroup label="Pilih">
-               @foreach(App\Models\Group::where('status',1)->where('type',get_post_type())->orderBy('sort','asc')->get() as $row)
+               @foreach(\Udiko\Cms\Models\Group::where('status',1)->where('type',get_post_type())->orderBy('sort','asc')->get() as $row)
                <option value="{{$row->id}}" {{($edit && in_array($row->id,json_decode($edit->group->pluck('id'),true)) ? 'selected=selected' : '')}}>{{$row->name}}</option>
                @endforeach
             </optgroup>
@@ -206,7 +206,7 @@
 </form>
 @if($edit->mime_type != 'html')
 <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
-@include('admin.layout.summernote')
+@include('views::backend.layout.summernote')
 @endif
 <script type="text/javascript">
    function readFile(input) {

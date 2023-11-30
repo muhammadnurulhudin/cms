@@ -1,4 +1,4 @@
-@extends('admin.layout.app',['title'=>get_module_info('title_crud')])
+@extends('views::backend.layout.app',['title'=>get_module_info('title_crud')])
 @section('content')
 <form class="editor-form" action="{{URL::full()}}" method="post" enctype="multipart/form-data">
    @csrf
