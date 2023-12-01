@@ -6,7 +6,26 @@ if (!function_exists('tanggal_indo')) {
         return $date . 'ok';
     }
 }
-
+if (!function_exists('size_as_kb')) {
+    function size_as_kb($size = 0)
+    {
+        if ($size < 1024) {
+            return "$size bytes";
+        } elseif ($size < 1048576) {
+            $size_kb = round($size / 1024, 2);
+            return "$size_kb KB";
+        } else {
+            $size_mb = round($size / 1048576, 2);
+            return "$size_mb MB";
+        }
+    }
+}
+if (!function_exists('size')) {
+    function size($file)
+    {
+        return file_exists(public_path($file)) ? size_as_kb(File::size(public_path($file))) : 0;
+    }
+}
 if (!function_exists('media_store')) {
 
     function media_store($parent, $mime, $path, $name, $title)
@@ -31,23 +50,44 @@ if (!function_exists('media_store')) {
     }
 }
 if (!function_exists('help')) {
-    function help($val){
-    return '<i class="fa fa-question-circle pointer" data-toggle="tooltip" title="'.$val.'" aria-hidden></i>';
-  }
+    function help($val)
+    {
+        return '<i class="fa fa-question-circle pointer" data-toggle="tooltip" title="' . $val . '" aria-hidden></i>';
+    }
 }
 
 if (!function_exists('thumb')) {
-    function thumb($src=false){
-    if($src && !is_dir(public_path($src))):
-    if(file_exists(public_path($src))){
-      return url($src);
-    }else {
-      return url('backend/images/noimage.png');
+    function thumb($src = false)
+    {
+        if ($src && !is_dir(public_path($src))):
+            if (file_exists(public_path($src))) {
+                return url($src);
+            } else {
+                return url('backend/images/noimage.png');
+            }
+        else:
+            return url('backend/images/noimage.png');
+        endif;
     }
-  else:
-    return url('backend/images/noimage.png');
-  endif;
-  }
+}
+if (!function_exists('allowed_ext')) {
+    function allowed_ext($ext = false)
+    {
+        $allowed = array('gif', 'png', 'jpeg', 'jpg', 'zip', 'docx', 'doc', 'rar', 'pdf', 'xlsx', 'xls');
+        if ($ext) {
+            if (in_array($ext, $allowed)) {
+                if (in_array($ext, ['gif', 'png', 'jpg', 'jpeg'])) {
+                    return 'image';
+                } else {
+                    return 'file';
+                }
+            } else {
+                return false;
+            }
+        } else {
+            return implode(',', $allowed);
+        }
+    }
 }
 if (!function_exists('cache_content_initial')) {
     function cache_content_initial()
@@ -61,23 +101,26 @@ if (!function_exists('cache_content_initial')) {
     }
 }
 if (!function_exists('underscore')) {
-    function underscore($val){
-    return strtolower(preg_replace('/[^A-Za-z0-9\-]/', '_', trim($val)));
-}
+    function underscore($val)
+    {
+        return strtolower(preg_replace('/[^A-Za-z0-9\-]/', '_', trim($val)));
+    }
 }
 if (!function_exists('get_module_info')) {
-    function get_module_info($val){
-    return $val ? (get_module(get_post_type())->$val ?? '') : '';
-  }
+    function get_module_info($val)
+    {
+        return $val ? (get_module(get_post_type())->$val ?? '') : '';
+    }
 }
 if (!function_exists('active_item')) {
-    function active_item($val){
-    if(Request::is(admin_path().'/'.$val) || Request::is(admin_path().'/'.$val.'/*') || Request::is(admin_path().'/'.$val.'/*/*'))
-    return 'active';
-}
+    function active_item($val)
+    {
+        if (Request::is(admin_path() . '/' . $val) || Request::is(admin_path() . '/' . $val . '/*') || Request::is(admin_path() . '/' . $val . '/*/*'))
+            return 'active';
+    }
 }
 if (!function_exists('admin_url')) {
-    function admin_url($path=false)
+    function admin_url($path = false)
     {
         return $path ? url(admin_path() . '/' . $path) : url(admin_path());
     }
@@ -206,9 +249,13 @@ if (!function_exists('add_module')) {
         }
         config(['modules.used' => $data]);
     }
-
 }
-
+if (!function_exists('is_admin')) {
+    function is_admin()
+    {
+        return Auth::user()->level == 'admin' ? true : false;
+    }
+}
 if (!function_exists('use_module')) {
     function use_module($module_selected)
     {
@@ -302,14 +349,16 @@ if (!function_exists('is_year')) {
     }
 }
 if (!function_exists('delete_post_url')) {
-    function delete_post_url($id){
-    return admin_url(get_post_type().'/delete/'.$id);
-  }
+    function delete_post_url($id)
+    {
+        return admin_url(get_post_type() . '/delete/' . $id);
+    }
 }
 if (!function_exists('edit_post_url')) {
-    function edit_post_url($id){
-    return admin_url(get_post_type().'/edit/'.$id);
-  }
+    function edit_post_url($id)
+    {
+        return admin_url(get_post_type() . '/edit/' . $id);
+    }
 }
 if (!function_exists('is_day')) {
     function is_day($day)
@@ -320,67 +369,63 @@ if (!function_exists('is_day')) {
     }
 }
 if (!function_exists('set_header_seo')) {
-    function set_header_seo($data){
-    return array(
-      'description' => (!empty($data->description)) ? $data->description : ($data->post_type=='halaman' || strlen(strip_tags($data->content)) == 0 ? 'Baca informasi tentang '.$data->title : Str::limit($data->content,350)),
-      'keywords' => (!empty($data->keyword)) ? $data->keyword : $data->keyword,
-      'title' => $data->title,
-      'thumbnail' => (!empty($data->thumbnail) && !is_dir(public_path($data->thumbnail)))? asset($data->thumbnail) : url(get_option('logo')),
-      'url' => (!empty($data->url))? url($data->url) : url('/'),
-    );
-  }
+    function set_header_seo($data)
+    {
+        return array(
+            'description' => (!empty($data->description)) ? $data->description : ($data->post_type == 'halaman' || strlen(strip_tags($data->content)) == 0 ? 'Baca informasi tentang ' . $data->title : Str::limit($data->content, 350)),
+            'keywords' => (!empty($data->keyword)) ? $data->keyword : $data->keyword,
+            'title' => $data->title,
+            'thumbnail' => (!empty($data->thumbnail) && !is_dir(public_path($data->thumbnail))) ? asset($data->thumbnail) : url(get_option('logo')),
+            'url' => (!empty($data->url)) ? url($data->url) : url('/'),
+        );
+    }
 }
 if (!function_exists('init_header')) {
-    function init_header(){
-    $get_page_name = config('modules.page_name') ;
-    $data = config('modules.data') ?? false;
-    $site_title = get_option('site_title');
-    $site_desc = get_option('site_description');
-    $site_meta_keyword = get_option('site_meta_keyword');
-    $site_meta_description= get_option('site_meta_description');
-    if($data){
-      $data['site_meta_keyword'] = $site_meta_keyword ;
-      return View::make('views::layouts.seo',set_header_seo($data));
-    }else {
-      $page = request()->page ? ' Halaman '.request()->page : '';
+    function init_header()
+    {
+        $get_page_name = config('modules.page_name');
+        $data = config('modules.data') ?? false;
+        $site_title = get_option('site_title');
+        $site_desc = get_option('site_description');
+        $site_meta_keyword = get_option('site_meta_keyword');
+        $site_meta_description = get_option('site_meta_description');
+        if ($data) {
+            $data['site_meta_keyword'] = $site_meta_keyword;
+            return View::make('views::layouts.seo', set_header_seo($data));
+        } else {
+            $page = request()->page ? ' Halaman ' . request()->page : '';
 
-      if(get_post_type() && !request()->is('search/*') && !request()->is('/')){
+            if (get_post_type() && !request()->is('search/*') && !request()->is('/')) {
 
-  if(request()->segment(2)=='archive'){
-      $pn = $get_page_name.$page;
+                if (request()->segment(2) == 'archive') {
+                    $pn = $get_page_name . $page;
 
-  }elseif(request()->segment(2)=='category')
-  {
-    $pn = $get_page_name.$page;
-  }
-  elseif(get_module(get_post_type())->post_parent)
-  {
-    $pn = $get_page_name.$page;
-  }
-    else{
-      $pn = $get_page_name.$page;
-      }
+                } elseif (request()->segment(2) == 'category') {
+                    $pn = $get_page_name . $page;
+                } elseif (get_module(get_post_type())->post_parent) {
+                    $pn = $get_page_name . $page;
+                } else {
+                    $pn = $get_page_name . $page;
+                }
 
-      }elseif(request()->is('search/*')){
-        $pn = 'Hasil Pencarian  "'.ucwords(str_replace('-',' ',request()->q)).'"'.$page;
-      }
-      elseif(request()->is('author') || request()->is('author/*')) {
-        $pn = $get_page_name.$page;
-      }
-      else{
-        $pn = null;
-      }
-      $data = [
-        'description' => $pn ? 'Lihat '.$pn.' di '.$site_title :  $site_meta_description,
-        'title' => $pn ? $pn : (!request()->is('/') ? '404 Halaman Tidak Ditemukan' : $site_title.($site_desc ? ' - '.$site_desc:'')),
-        'keywords' => $site_meta_keyword,
-        'thumbnail' => url(get_option('logo')),
-        'url' => URL::full(),
-      ];
+            } elseif (request()->is('search/*')) {
+                $pn = 'Hasil Pencarian  "' . ucwords(str_replace('-', ' ', request()->q)) . '"' . $page;
+            } elseif (request()->is('author') || request()->is('author/*')) {
+                $pn = $get_page_name . $page;
+            } else {
+                $pn = null;
+            }
+            $data = [
+                'description' => $pn ? 'Lihat ' . $pn . ' di ' . $site_title : $site_meta_description,
+                'title' => $pn ? $pn : (!request()->is('/') ? '404 Halaman Tidak Ditemukan' : $site_title . ($site_desc ? ' - ' . $site_desc : '')),
+                'keywords' => $site_meta_keyword,
+                'thumbnail' => url(get_option('logo')),
+                'url' => URL::full(),
+            ];
 
-      return View::make('views::layouts.seo',$data ?? [null]);
+            return View::make('views::layouts.seo', $data ?? [null]);
+        }
     }
-  }
 }
 if (!function_exists('kaedah')) {
     function kaedah()

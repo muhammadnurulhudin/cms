@@ -1,10 +1,10 @@
-@extends('views::backend.layout.app',['title'=>get_module_info('title_crud')])
+@extends('views::backend.layout.app',['title'=>get_post_type('title_crud')])
 @section('content')
 <form class="editor-form" action="{{URL::full()}}" method="post" enctype="multipart/form-data">
    @csrf
    <div class="row">
       <div class="col-lg-12">
-         <h3 style="font-weight:normal"> <i class="fa {{get_module_info('icon')}}" aria-hidden="true"></i> {{get_module_info('title_crud')}} <a href="{{admin_url(get_post_type())}}" class="btn btn-outline-danger btn-sm pull-right" data-toggle="tooltip" title="Kembali Ke Index Data"> <i class="fa fa-undo" aria-hidden></i> Kembali</a></h3>
+         <h3 style="font-weight:normal"> <i class="fa {{get_module_info('icon')}}" aria-hidden="true"></i> {{get_post_type('title_crud')}} <a href="{{admin_url(get_post_type())}}" class="btn btn-outline-danger btn-sm pull-right" data-toggle="tooltip" title="Kembali Ke Index Data"> <i class="fa fa-undo" aria-hidden></i> Kembali</a></h3>
          <br>
          @if(!empty($edit && get_module_info('detail') && $edit->title))
          <div style="border-left:3px solid green" class="alert alert-success"><b>URL : </b><a title="Kunjungi URL" data-toggle="tooltip" href="{{url($edit->url)}}" target="_blank"><i><u>{{url($edit->url)}}</u></i></a> <span title="Klik Untuk Menyalin alamat URL {{get_module_info('title')}}" data-toggle="tooltip" class="pointer copy pull-right badge badge-primary" data-copy="{{url($edit->url)}}"><i class="fa fa-copy" aria-hidden></i> <b>Salin</b></span></div>
@@ -153,9 +153,9 @@
          <small>Pengalihan URL {!!help("Opsi Jika Ingin Mengalihkan Konten Ini ke suatu halaman web atau url")!!} </small>
          <input type="text" class="form-control form-control-sm" name="redirect_to" placeholder="URL dimulai https:// atau http://" value="{{$edit->redirect_to ?? ''}}">
          <small for="">Deskripsi {!!help("Opsi deskripsi singkat tentang konten yang dapat ditelusuri oleh mesin pencarian")!!} </small>
-         <textarea placeholder="Tulis Deskripsi" type="text" class="form-control form-control-sm" name="post_meta_description">{{$edit->post_meta_description ?? ''}}</textarea>
+         <textarea placeholder="Tulis Deskripsi" type="text" class="form-control form-control-sm" name="description">{{$edit->description ?? ''}}</textarea>
          <small for="">Kata Kunci  {!!help("Kata kunci tentang konten yang dapat ditelusuri oleh mesin pencarian")!!}</small>
-         <input placeholder="Keyword1,Keyword2,Keyword3" type="text" class="form-control form-control-sm" name="post_meta_keyword" value="{{$edit->post_meta_keyword ?? ''}}">
+         <input placeholder="Keyword1,Keyword2,Keyword3" type="text" class="form-control form-control-sm" name="keyword" value="{{$edit->keyword ?? ''}}">
          @endif
          @if(get_module_info('group'))
          <small for="">Kategori  {!!help("Pengelompokan kategori konten")!!}</small><br>
@@ -205,7 +205,12 @@
    </div>
 </form>
 @if($edit->mime_type != 'html')
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
+@endpush
+@push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
+@endpush
 @include('views::backend.layout.summernote')
 @endif
 <script type="text/javascript">
@@ -217,13 +222,6 @@
        input.value='';
      }
    }
-function delloop(path){
-  var url = "{{admin_url(get_post_type().'/loop')}}";
-     $.get( "ajax/test.html", function( data ) {
-  $( ".result" ).html( data );
-  alert( "Load was performed." );
-});
-   }
    function exeurl(url){
    $.get("{{url(admin_path().'/unlink?link=')}}"+url, function(data, status){
 
@@ -234,8 +232,10 @@ function delloop(path){
          location.reload();
  }, "1000")
 
-
  });
  }
 </script>
+@push('scripts')
+<script type="text/javascript" src="{{secure_asset('backend/js/plugins/select2.min.js')}}"></script>
+@endpush
 @endsection

@@ -1,10 +1,16 @@
 <?php
 namespace Udiko\Cms\Http\Controllers;
+
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Udiko\Cms\Models\Post;
+use Udiko\Cms\Models\Group;
 use Illuminate\Http\Request;
+use Str;
+use File;
+use Image;
 use Yajra\DataTables\Facades\DataTables;
+
 class BackendController extends Controller
 {
     public function __construct()
@@ -129,7 +135,7 @@ class BackendController extends Controller
 
 
 
-    public function form(Post $p, Request $req, $id = null)
+    public function form(Request $req, Post $p, $id = null)
     {
         $looping_name = underscore(get_module_info('looping'));
 
@@ -150,16 +156,16 @@ class BackendController extends Controller
                 'url' => url(get_post_type() . '/' . rand()),
                 'status' => 'draft'
             ]);
-            if (get_module_info('parent') == 'e-surat'):
-                $newpost->update(['url' => url(get_post_type() . '/' . $newpost->id . date('dmY')), 'status' => 'draft', 'title' => date('YmdHis')]);
-            endif;
+            // if (get_module_info('parent') == 'e-surat'):
+            //     $newpost->update(['url' => url(get_post_type() . '/' . $newpost->id . date('dmY')), 'status' => 'draft', 'title' => date('YmdHis')]);
+            // endif;
             return redirect(admin_url(get_post_type() . '/edit/' . $newpost->id));
         }
 
         if ($req->save) {
             $data = array(
                 'thumbnail_description' => $req->thumbnail_description ?? null,
-                'thumbnail' => $req->thumbnail ? $this->upload_thumb($req, get_post_type(), $id, $find->created_at) : (($req->save != 'add') ? $find->thumbnail : null),
+                'thumbnail' => $req->thumbnail ? $this->upload_thumb($req, $find) : (($req->save != 'add') ? $find->thumbnail : null),
                 'type' => get_post_type() ?? null,
                 'title' => $req->title ?? null,
                 'content' => ($req->mime != 'html' && $find->mime != 'html') ? ($req->content ?? null) : $find->content,
@@ -183,11 +189,11 @@ class BackendController extends Controller
                 if (Post::where('title', $req->title)->whereNotIn('id', [$id])->where('type', get_post_type())->count() > 0)
                     return back()->with('danger', 'Upss...' . get_module_info('data_title') . ' Sudah digunakan !');
                 $find->update($data);
+
                 if ($req->post_group) {
                     $find->group()->sync($req->post_group);
-
                 }
-
+                //start custom field handler
                 if (get_module_info('custom_field')) {
                     foreach (collect(get_module_info('custom_field'))->where([1], '!=', 'break') as $key => $value) {
                         $fieldname = underscore($value[0]);
@@ -213,7 +219,9 @@ class BackendController extends Controller
                     }
                     $find->update(['data_field' => json_encode($custom_field)]);
                 }
+                //end custom field handler
 
+                //start looping data handler
                 if (get_module_info('looping')) {
                     $looping = underscore(get_module_info('looping'));
                     $datanya = array();
@@ -289,11 +297,12 @@ class BackendController extends Controller
                         $find->update(['data_loop' => json_encode($datanya)]);
                     endif;
                 }
+                //end looping data handler
 
                 if ($req->tanggal_entry) {
                     $find->update(['created_at' => $req->tanggal_entry]);
                 }
-                $this->regenerate_cache();
+                regenerate_cache();
                 $req->session()->regenerateToken();
                 return back()->with('success', get_module_info('title_crud') . ' Berhasil');
             }
@@ -315,31 +324,30 @@ class BackendController extends Controller
 
     public function delete(Post $post, $id)
     {
-        $cek = Post::find($id);
+        $cek = Post::findOrFail($id);
         if (empty($cek)) {
             return redirect(admin_path() . '/' . get_post_type())->with('danger', 'Data Tidak Ditemukan');
         }
         $dir = public_path('upload/' . get_post_type() . '/' . $this->dirpost($cek->created_at)->y . '/' . $id);
         File::deleteDirectory($dir);
+        $cek->group()->detach($id);
         $cek->delete();
-        PostGroup::wherePostId($id)->delete();
-        $this->regenerate_cache();
-        return back();
+        regenerate_cache();
     }
-    public function group(Request $req, $id = null)
+    public function group(Request $req, $ids = null)
     {
-        if ($id) {
-            if (PostGroup::where('group_id', dec64($id))->count() > 0)
-                return back()->with('danger', 'Kategori Sedang Digunakan');
-            Group::where('id', dec64($id))->delete();
-            $this->regenerate_cache();
-
+        if ($ids) {
+            if (Group::whereHas('post')->whereId($ids)->count() > 0)
+               return back()->with('danger', 'Kategori Sedang Digunakan');
+            $find = Group::findOrFail($ids);
+            $find->delete();
+            regenerate_cache();
             return back()->with('success', 'Hapus Kategori Sukses');
         }
         if ($req->id) {
-            Group::whereId(dec64($req->id))->update(['status' => $req->status == '1' ? 0 : 1]);
-            $this->regenerate_cache();
-
+            $find = Group::findOrFail($req->id);
+            $find->update(['status' => $req->status == '1' ? 0 : 1]);
+            regenerate_cache();
             return back()->with('success', 'Kategori Berhasil Diupdate');
 
         }
@@ -353,11 +361,11 @@ class BackendController extends Controller
                     'url' => get_post_type() . '/kategori/' . Str::slug($req->name),
                     'slug' => Str::slug($req->name),
                 ]);
-                $this->regenerate_cache();
+                regenerate_cache();
 
                 return back()->with('success', 'Kategori Berhasil Ditambahkan');
             } else {
-                Group::where('id', dec64($req->save))->update([
+                Group::where('id', $req->save)->update([
                     'description' => $req->description,
                     'name' => $req->name,
                     'sort' => $req->sort,
@@ -365,7 +373,7 @@ class BackendController extends Controller
                     'url' => get_post_type() . '/kategori/' . Str::slug($req->name),
 
                 ]);
-                $this->regenerate_cache();
+                regenerate_cache();
 
                 return back()->with('success', 'Kategori Berhasil Diupdate');
             }
@@ -373,7 +381,7 @@ class BackendController extends Controller
         }
         $group = Group::with('post')->whereType(get_post_type())->orderBy('sort', 'asc')->get();
         // return $group;
-        return view('admin.group', ['data' => $group]);
+        return view('views::backend.group', ['data' => $group]);
 
 
     }
@@ -417,19 +425,20 @@ class BackendController extends Controller
         $y = date('Y', strtotime($post_date));
         return json_decode(json_encode(['y' => $y]));
     }
-    function upload_thumb($req, $post_type, $id, $date)
+
+    //start thumbnail handler
+    function upload_thumb($req, $post)
     {
-        $post = Post::find($id);
-        if (!is_dir(public_path('upload/' . $post_type))) {
-            mkdir(public_path('upload/' . $post_type));
-        }
-        $per = array($this->dirpost($date)->y, $this->dirpost($date)->y . '/' . $id);
+        if (!is_dir(public_path('upload')))
+            mkdir(public_path('upload'));
+        if (!is_dir(public_path('upload/' . $post->type)))
+            mkdir(public_path('upload/' . $post->type));
+        $per = array($this->dirpost($post->created_at)->y, $this->dirpost($post->created_at)->y . '/' . $post->id);
         foreach ($per as $value) {
-            if (!is_dir(public_path('upload/' . $post_type . '/' . $value))) {
-                mkdir(public_path('upload/' . $post_type . '/' . $value));
-            }
+            if (!is_dir(public_path('upload/' . $post->type . '/' . $value)))
+                mkdir(public_path('upload/' . $post->type . '/' . $value));
         }
-        $dir = 'upload/' . $post_type . '/' . $this->dirpost($date)->y . '/' . $id . '/';
+        $dir = 'upload/' . $post->type . '/' . $this->dirpost($post->created_at)->y . '/' . $post->id . '/';
         if ($files = $req->file('thumbnail')) {
             if (allowed_ext($files->extension())) {
 
@@ -448,7 +457,7 @@ class BackendController extends Controller
                     $constraint->upsize();
                 });
                 $img = $img->save($path . $name);
-                $this->media_store($id, $mime, $dir . $name, $name, $fname);
+                media_store($post->id, $mime, $dir . $name, $name, $fname);
 
                 return $dir . $name;
             } else {
@@ -458,6 +467,8 @@ class BackendController extends Controller
         }
 
     }
+    //end thumbnail handler
+
     public function dataindex(Request $req)
     {
         $data = Post::with('user', 'group', 'comments', 'child')->whereType(get_post_type());
@@ -472,7 +483,7 @@ class BackendController extends Controller
 // }
         return DataTables::of($data)
             ->addIndexColumn()
-            ->addColumn('post_title', function ($row) {
+            ->addColumn('title', function ($row) {
                 if (get_module_info('post_type') == 'media') {
                     if (!file_exists(public_path($row->url)) || Post::where('id', $row->parent)->count() == 0) {
                         Post::where('id', $row->id)->delete();
@@ -530,11 +541,11 @@ class BackendController extends Controller
                     '<a href="' . edit_post_url($row->id) . '" title="Edit"><i class="fa fa-edit"></i></a> &nbsp;' . $del;
                 return $dis;
             })
-            ->rawColumns(['created_at', 'updated_at', 'visited', 'aksi', 'post_title', 'data_field', 'parents', 'thumbnail'])
+            ->rawColumns(['created_at', 'updated_at', 'visited', 'aksi', 'title', 'data_field', 'parents', 'thumbnail'])
             ->orderColumn('visited', '-visited $1')
             ->orderColumn('updated_at', '-updated_at $1')
             ->orderColumn('created_at', '-created_at $1')
-            ->only(['visited', 'aksi', 'post_title', 'created_at', 'updated_at', 'data_field', 'parents', 'thumbnail'])
+            ->only(['visited', 'aksi', 'title', 'created_at', 'updated_at', 'data_field', 'parents', 'thumbnail'])
             ->filterColumn('title', function ($query, $keyword) {
                 $query->whereRaw("CONCAT(posts.title,'-',posts.title) like ?", ["%{$keyword}%"]);
             })

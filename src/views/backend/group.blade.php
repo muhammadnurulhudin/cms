@@ -26,9 +26,9 @@
   <td >{{$row->name}}</td>
   <td>{{$row->description ?? '__'}}</td>
   <td class="text-center">{{$row->post->count()}}</td>
-  <td class="text-center" title="Klik untuk mengganti status"><a href="@if(Auth::user()->level=='admin'){{URL::current().'?id='.enc64($row->id).'&status='.$row->status}}@else # @endif">{!!$row->status =='1' ? '<span class="badge badge-success">Aktif</span>' : '<span class="badge badge-warning">Draft</span>'!!}</a></td>
+  <td class="text-center" title="Klik untuk mengganti status"><a href="@if(Auth::user()->level=='admin'){{URL::current().'?id='.$row->id.'&status='.$row->status}}@else # @endif">{!!$row->status =='1' ? '<span class="badge badge-success">Aktif</span>' : '<span class="badge badge-warning">Draft</span>'!!}</a></td>
   <td class="text-center"> <a title="Lihat Isi Kategori di tampilan web" href="{{url($row->url)}}" target="_blank" class="btn btn-sm btn-outline-success"> Kunjungi </a>  <span title="Salin URL" data-copy="{{url($row->url)}}" target="_blank" class="btn btn-sm btn-outline-info pointer copy"> <i class="fa fa-copy" aria-hidden></i> </span> </td>
-  @if(is_admin())<td class="text-center"><a href="javascript::void(0)" onclick="$('.save').val('{{enc64($row->id)}}');$('.modtitle').html('Edit');$('.group_name').val('{{$row->name}}');$('.sort').val('{{$row->sort}}');$('.group_url').val('{{$row->url}}');$('.group_description').val('{{$row->description}}');$('.modal').modal('show')" title="Edit"><i class="fa fa-edit"></i></a> &nbsp;<a  title="Hapus" @if($row->post->count()==0)onclick="deleteAlert('{{admin_url(get_post_type().'/group/delete/'.enc64($row->id))}}')" @else onclick="alert('Kategori Tidak Bisa Dihapus, Memiliki Konten Yang terkait')" @endif href="javascript:void(0)" class="text-danger" ><i class="fa fa-trash"></i></a></td>@endif
+  @if(is_admin())<td class="text-center"><a href="javascript::void(0)" onclick="$('.save').val('{{$row->id}}');$('.modtitle').html('Edit');$('.group_name').val('{{$row->name}}');$('.sort').val('{{$row->sort}}');$('.group_url').val('{{$row->url}}');$('.group_description').val('{{$row->description}}');$('.modal').modal('show')" title="Edit"><i class="fa fa-edit"></i></a> &nbsp;<a  title="Hapus" @if($row->post->count()==0)onclick="deleteAlert('{{admin_url(get_post_type().'/group/delete/'.$row->id)}}')" @else onclick="alert('Kategori Tidak Bisa Dihapus, Memiliki Konten Yang terkait')" @endif href="javascript:void(0)" class="text-danger" ><i class="fa fa-trash"></i></a></td>@endif
 </tr>
 @endforeach
 </tbody>
@@ -72,4 +72,11 @@
     </div>
   </div>
 </div>
+@push('scripts')
+<script type="text/javascript" src="{{secure_asset('backend/js/plugins/jquery.dataTables.min.js')}}"></script>
+     <script type="text/javascript" src="{{secure_asset('backend/js/plugins/dataTables.bootstrap.min.js')}}"></script>
+     <script type="text/javascript" src="https://cdn.datatables.net/rowreorder/1.4.1/js/dataTables.rowReorder.min.js"></script>
+     <script type="text/javascript" src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+     <script type="text/javascript">$('#sampleTable').DataTable();</script>
+@endpush
 @endsection

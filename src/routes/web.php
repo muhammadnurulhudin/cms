@@ -24,17 +24,7 @@ if (request()->segment(1) == $admin_path && !in_array(request()->segment(2),['lo
             foreach (get_module() as $value) {
                 if (request()->segment(2) == $value->name) {
 
-                    $title = match (true) {
-                        Request::is($admin_path . '/' . $value->name . '/edit/*') => 'Edit ' . $value->title,
-                        Request::is($admin_path . '/' . $value->name) => $value->title,
-                        default => 'Kategori ' . $value->title,
-                    };
-                    config([
-                        'modules.current' => [
-                            'post_type' => $value->name,
-                            'title_crud' => $title,
-                        ]
-                    ]);
+
                     if ($value->crud) {
                         if (in_array('read', $value->crud)) {
                             Route::get( $value->name, 'index')->name($value->name.'.index');
@@ -53,12 +43,23 @@ if (request()->segment(1) == $admin_path && !in_array(request()->segment(2),['lo
 
                     if ($value->group) {
                         Route::match( ['get', 'post'],$value->name . '/group', 'group');
-                        Route::get(  $value->name . '/group/delete/{id}', 'group');
+                        Route::get(  $value->name . '/group/delete/{ids}', 'group');
                     }
                     if ($value->editor) {
                         Route::match(['get', 'post'], $value->name . '/upload_image/{id}', 'summer_image_upload');
                         Route::match(['get', 'post'],  $value->name . '/upload_file/{id}', 'summer_file_upload');
                     }
+                    $title = match (true) {
+                        Request::is($admin_path . '/' . $value->name . '/edit/*') => 'Edit ' . $value->title,
+                        Request::is($admin_path . '/' . $value->name) => $value->title,
+                        default => 'Kategori ' . $value->title,
+                    };
+                    config([
+                        'modules.current' => [
+                            'post_type' => $value->name,
+                            'title_crud' => $title,
+                        ]
+                    ]);
                 }
             }
             Route::match(['get', 'post'], 'dashboard', 'dashboard');

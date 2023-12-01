@@ -1,4 +1,4 @@
-@extends('views::backend.layout.app',['title'=>get_module_info('title_crud')])
+@extends('views::backend.layout.app',['title'=>get_post_type('title_crud')])
 @section('content')
 <div class="row">
 <div class="col-lg-12 mb-3">
@@ -36,7 +36,7 @@
 <div class="col-lg-12">
 <div class="table-responsive">
 
-<table class="table table-hover table-bordered datat" style="background:#f7f7f7;width:100%">
+<table class="display table table-hover table-bordered datat" style="background:#f7f7f7;width:100%">
 <thead style="text-transform:uppercase;color:#444">
   <tr>
     {{-- <th style="width:40px;vertical-align: middle">
@@ -83,4 +83,18 @@
 </div>
 </div>
 @include('views::backend.datatable')
+@push('styles')
+
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/rowreorder/1.4.1/css/rowReorder.dataTables.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
+
+@endpush
+@push('scripts')
+<script type="text/javascript" src="{{secure_asset('backend/js/plugins/jquery.dataTables.min.js')}}"></script>
+     <script type="text/javascript" src="{{secure_asset('backend/js/plugins/dataTables.bootstrap.min.js')}}"></script>
+     <script type="text/javascript" src="https://cdn.datatables.net/rowreorder/1.4.1/js/dataTables.rowReorder.min.js"></script>
+     <script type="text/javascript" src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+     <script type="text/javascript">$('#sampleTable').DataTable();</script>
+@endpush
+
 @endsection
