@@ -130,7 +130,7 @@ if (!function_exists('regenerate_cache')) {
     {
         //forget cache post
         $post_type = collect(config('modules.used'))->where('auto_load', true)->pluck('name');
-        $cache_post = Udiko\Cms\Models\Post::with(['user', 'comments', 'group'])->whereIn('type', $post_type)->whereStatus('publish')->latest('created_at')->get();
+        $cache_post = \Udiko\Cms\Models\Post::with(['user', 'comments', 'group'])->whereIn('type', $post_type)->whereStatus('publish')->latest('created_at')->get();
         Cache::put('post', $cache_post, now()->addMinutes(30));
         Cache::put(
             'group',
@@ -250,6 +250,65 @@ if (!function_exists('add_module')) {
         config(['modules.used' => $data]);
     }
 }
+if (!function_exists('_field')) {
+    function _field($r,$k,$link=false){
+    $data = $r->data_field;
+    return (isset(json_decode($data,true)[$k])) ? ($link ? (Str::contains(json_decode($data)->$k, 'http')? '<a href="'.strip_tags(json_decode($data)->$k).'">'.str_replace(['http://','https://'],'',json_decode($data)->$k).'</a>': json_decode($data)->$k) : json_decode($data)->$k ) : NULL ;
+  }
+  }
+
+if (!function_exists('getlistmenu')) {
+    function getlistmenu($menu,$menulist){
+    $me = $menu;
+    $m = '';
+  foreach (json_decode(json_encode($menulist)) as $key => $value) {
+    $m .= '
+    <li class="dd-item dd3-item menu-id-'.$value->id.'" data-id="'.$value->id.'">
+    <input type="hidden" name="id[]" value="'.$value->id.'">
+    <input type="hidden" name="parent[]" value="'.$value->parent.'">
+    <input type="hidden" class="name-'.$value->id.'" name="name[]" value="'.$value->name.'">
+    <input type="hidden" class="desc-'.$value->id.'" name="description[]" value="'.$value->description.'">
+    <input type="hidden" class="link-'.$value->id.'" name="link[]" value="'.$value->link.'">
+    <input type="hidden" class="icon-'.$value->id.'" name="icon[]" value="'.$value->icon.'">
+      <div style="cursor:move" class="dd-handle dd3-handle"></div><div class="dd3-content">'.$value->name.' <i class="fa fa-angle-right" aria-hidden></i>  <code><i>'.$value->link.'</i></code><span style="float:right"><a href="javascript:void(0)" onclick="$(\'.link\').val(\''.$value->link.'\');$(\'.description\').val(\''.$value->description.'\');$(\'.name\').val(\''.$value->name.'\');$(\'.iconx\').val(\''.$value->icon.'\');$(\'#type\').val(\''.$value->id.'\');$(\'.modal\').modal(\'show\')" class="text-warning"> <i class="fa fa-edit" aria-hidden=""></i> </a> &nbsp; <a href="javascript:void(0)" onclick="del_menu(\''.$value->id.'\')" class="text-danger"> <i class="fa fa-trash" aria-hidden=""></i> </a></span></div>
+      '.ceksubmenu($me,$value->id).'
+    </li>
+    ';
+  }
+  return $m;
+  }
+}
+if (!function_exists('rnd')) {
+    function rnd($length)
+{
+    $str        = "";
+    $characters = '0123456789';
+    $max        = strlen($characters) - 1;
+    for ($i = 0; $i < $length; $i++) {
+        $rand = mt_rand(0, $max);
+        $str .= $characters[$rand];
+    }
+    return $str;
+}
+}
+if (!function_exists('ceksubmenu')) {
+    function ceksubmenu($menu,$id){
+  $cek = $menu->where('parent',$id);
+  if(count($cek)>0){
+    $m = '<ol class="dd-list">';
+    $m .= getlistmenu($menu,$cek);
+    $m .= '</ol>';
+    return $m;
+  }else {
+    return null;
+  }
+  }
+}
+if (!function_exists('_loop')) {
+    function _loop($r){
+    return (!empty($r->data_loop)) ? json_decode($r->data_loop) : array();
+  }
+}
 if (!function_exists('is_admin')) {
     function is_admin()
     {
@@ -318,6 +377,13 @@ if (!function_exists('template')) {
         return get_option('template');
     }
 }
+
+if (!function_exists(function: 'template_asset')) {
+    function template_asset($path=false)
+    {
+        return $path ? secure_asset('template/'.get_option('template').'/'.$path) : null;
+    }
+}
 if (!function_exists('strip_to_underscore')) {
 
     function strip_to_underscore($val)
@@ -372,8 +438,8 @@ if (!function_exists('set_header_seo')) {
     function set_header_seo($data)
     {
         return array(
-            'description' => (!empty($data->description)) ? $data->description : ($data->post_type == 'halaman' || strlen(strip_tags($data->content)) == 0 ? 'Baca informasi tentang ' . $data->title : Str::limit($data->content, 350)),
-            'keywords' => (!empty($data->keyword)) ? $data->keyword : $data->keyword,
+            'description' => !empty($data->description) ? $data->description : (strlen(strip_tags($data->content)) == 0 ? 'Lihat '.get_module($data->type)->title.' ' . $data->title : Str::limit($data->content, 350)),
+            'keywords' => !empty($data->keyword) ? $data->keyword :  $data->site_keyword,
             'title' => $data->title,
             'thumbnail' => (!empty($data->thumbnail) && !is_dir(public_path($data->thumbnail))) ? asset($data->thumbnail) : url(get_option('logo')),
             'url' => (!empty($data->url)) ? url($data->url) : url('/'),
@@ -387,10 +453,10 @@ if (!function_exists('init_header')) {
         $data = config('modules.data') ?? false;
         $site_title = get_option('site_title');
         $site_desc = get_option('site_description');
-        $site_meta_keyword = get_option('site_meta_keyword');
-        $site_meta_description = get_option('site_meta_description');
+        $site_meta_keyword = get_option('site_keyword');
+        $site_meta_description = get_option('site_description');
         if ($data) {
-            $data['site_meta_keyword'] = $site_meta_keyword;
+            $data['site_keyword'] = $site_meta_keyword;
             return View::make('views::layouts.seo', set_header_seo($data));
         } else {
             $page = request()->page ? ' Halaman ' . request()->page : '';
@@ -505,4 +571,23 @@ if (!function_exists('load_default_module')) {
         use_module(['berita' => ['position' => 1], 'halaman' => ['custom_field' => false], 'agenda' => ['position' => 2], 'sambutan' => ['position' => 6], 'download' => ['position' => 3], 'menu' => true, 'banner' => ['auto_load' => true], 'foto' => ['position' => 4], 'video' => ['position' => 5], 'media' => ['position' => 7, 'icon' => 'fa-link']]);
 
     }
+}
+
+
+if (!function_exists('paginate')) {
+    function paginate($items)
+{
+
+    $perPage = get_option('post_perpage');
+    $page = request()->page  ?: (\Illuminate\Pagination\Paginator::resolveCurrentPage() ?: 1);
+    $items = $items instanceof \Illuminate\Support\Collection ? $items : \Illuminate\Support\Collection::make($items);
+    return new \Illuminate\Pagination\LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, ['path'=>url()->current()]);
+}
+}
+if (!function_exists(function: 'get_post')) {
+    function get_post()
+{
+
+        return new \Udiko\Cms\Models\Post;
+}
 }

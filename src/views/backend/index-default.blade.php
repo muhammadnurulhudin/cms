@@ -5,7 +5,7 @@
   <h3 style="font-weight:normal;float:left"><i class="fa {{get_module_info('icon')}}" aria-hidden="true"></i> {{get_post_type('title_crud')}}
 </h3>
 <div class="pull-right">@if(get_post_type()!='media') <a href="{{admin_url(get_post_type().'/create')}}" class="btn btn-outline-primary btn-sm"> <i class="fa fa-plus" aria-hidden></i> Tambah</a> @endif @if(get_module_info('group')) <a href="{{admin_url(get_post_type().'/group')}}" class="btn btn-outline-dark btn-sm"> <i class="fa fa-tags" aria-hidden></i> Kategori</a> @endif
-    <a href="" class="btn btn-outline-danger btn-sm" ><i class="fa fa-trash" ></i> Sampah</a>
+    {{-- <a href="" class="btn btn-outline-danger btn-sm" ><i class="fa fa-trash" ></i> Sampah</a> --}}
 </div>
 </div>
 <!-- <select name="" id="" style="width:150px;" class="form-control form-control-sm pull-left ">

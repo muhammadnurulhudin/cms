@@ -119,39 +119,6 @@ border-bottom-right-radius: 0;
 <div class="row">
   <div class="col-lg-12">
 
-<?php
-function getlistmenu($menu,$menulist){
-  $me = $menu;
-  $m = '';
-foreach (json_decode(json_encode($menulist)) as $key => $value) {
-  $m .= '
-  <li class="dd-item dd3-item menu-id-'.$value->id.'" data-id="'.$value->id.'">
-  <input type="hidden" name="id[]" value="'.$value->id.'">
-  <input type="hidden" name="parent[]" value="'.$value->parent.'">
-  <input type="hidden" class="name-'.$value->id.'" name="name[]" value="'.$value->name.'">
-  <input type="hidden" class="desc-'.$value->id.'" name="description[]" value="'.$value->description.'">
-  <input type="hidden" class="link-'.$value->id.'" name="link[]" value="'.$value->link.'">
-  <input type="hidden" class="icon-'.$value->id.'" name="icon[]" value="'.$value->icon.'">
-    <div style="cursor:move" class="dd-handle dd3-handle"></div><div class="dd3-content">'.$value->name.' <i class="fa fa-angle-right" aria-hidden></i>  <code><i>'.$value->link.'</i></code><span style="float:right"><a href="javascript:void(0)" onclick="$(\'.link\').val(\''.$value->link.'\');$(\'.description\').val(\''.$value->description.'\');$(\'.name\').val(\''.$value->name.'\');$(\'.iconx\').val(\''.$value->icon.'\');$(\'#type\').val(\''.$value->id.'\');$(\'.modal\').modal(\'show\')" class="text-warning"> <i class="fa fa-edit" aria-hidden=""></i> </a> &nbsp; <a href="javascript:void(0)" onclick="del_menu(\''.$value->id.'\')" class="text-danger"> <i class="fa fa-trash" aria-hidden=""></i> </a></span></div>
-    '.ceksubmenu($me,$value->id).'
-  </li>
-  ';
-}
-return $m;
-}
-function ceksubmenu($menu,$id){
-$cek = $menu->where('parent',$id);
-if(count($cek)>0){
-  $m = '<ol class="dd-list">';
-  $m .= getlistmenu($menu,$cek);
-  $m .= '</ol>';
-  return $m;
-}else {
-  return null;
-}
-}
-
-?>
 <div class="dd" id="nestable3" style="max-height:55vh;overflow:auto">
       <ol class="dd-list main-list">
         @php $menu = collect(json_decode($looping_data,true));@endphp

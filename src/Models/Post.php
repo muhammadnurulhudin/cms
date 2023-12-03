@@ -2,6 +2,7 @@
 namespace Udiko\Cms\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
@@ -13,19 +14,23 @@ class Post extends Model
 {
   use HasFactory,HasUuids;
 protected $fillable=[
-  'title','slug','content','url','thumbnail','thumbnail_description','keyword','description','parent','user_id','pinned','type','redirect_to','status','visited','allow_comment','data_field','data_loop'
+  'title','slug','content','url','thumbnail','thumbnail_description','keyword','description','parent','user_id','pinned','type','redirect_to','status','visited','allow_comment','data_field','data_loop','created_at'
 ];
+
 
   public function user()
   {
   return $this->belongsTo(User::class);
   }
 
-  public function comments(): HasMany
+  public function comments()
   {
       return $this->hasMany(Comment::class);
   }
-
+  public function post_parent()
+  {
+      return $this->belongsTo(Post::class,'parent','id');
+  }
   public function group()
   {
   return $this->belongsToMany(Group::class);
@@ -38,9 +43,12 @@ protected $fillable=[
   function cachedpost(){
     return Cache::get('post');
   }
+  function count($type){
+    return $this->cachedpost()->where('type',$type)->count();
+  }
   public function groups($type)
   {
-      return collect(Cache::get('listgroup'))->where('type',$type)->sortBy('sort');
+      return collect(Cache::get('group'))->where('type',$type)->sortBy('sort');
   }
 
   function comments_list($type,$post_name,$limit=false){
@@ -50,8 +58,8 @@ protected $fillable=[
 
   function comments_form($detail){
     if($detail->allow_comment==1){
-     $com = paginate($detail->comments->where('status',1));
-   return  View::make('comments_form',compact('com'));
+    //  $com = paginate($detail->comments->where('status',1));
+//    return  View::make('comments_form',compact('com'));
     }
     else{
      return null;
@@ -69,7 +77,7 @@ protected $fillable=[
 
   public function visitsCounter()
   {
-      return visits($this);
+    //   return visits($this);
   }
 
   public function index($type,$paginate=false){
@@ -84,16 +92,13 @@ return $paginate ? paginate($this->cachedpost()->where('type',$type)) : $this->c
     return $type ? $this->posts->where('post_pin',1)->where('type',$type)->take($limit) : $this->posts->where('post_pin',1)->take($limit);
   }
 
-  //add collect in count()
   function index_by_group($type,$group,$limit=false){
     $cek = collect(Cache::get('listgroup'))->where('type',$type)->where('slug',$group)->first();
    return $cek && count(collect($cek->posts)) > 0 ? ($limit ? collect($cek->posts)->take($limit) : collect($cek->posts)) : array();
   }
-  //recent excep change
   function index_recent($type,$except=false){
-    return $except ? $this->posts->whereNotIn('post_id',$except)->where('type',$type)->take(5) : $this->posts->where('type',$type)->take(5);
+    return $except ? $this->cachedpost()->whereNotIn('id',$except)->where('type',$type)->take(5) : $this->cachedpost()->where('type',$type)->take(5);
   }
-  //edit post parent logik
   function index_child($id,$type=false){
     return $type ? $this->posts->where('post_parent',$id)->where('type',$type) : $this->posts->where('post_parent',$id);
   }

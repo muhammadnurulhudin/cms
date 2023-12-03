@@ -127,7 +127,7 @@ return [
             'history' => false,
             'auto_query' => false,
             'auto_load' => false,
-            'crud' => ['read'],
+            'crud' => ['read','update'],
             'active' => true,
 
         ],

@@ -140,13 +140,15 @@ class BackendController extends Controller
         $looping_name = underscore(get_module_info('looping'));
 
         $find = Post::with('group')->find($id);
-
+        // return $find->post_parent->id;
         // return $find;
         if ($id && empty($find) || (!empty($find) && $find->type != get_post_type())) {
             return redirect(admin_url(get_post_type()))->with('warning', get_module_info('title') . ' Tidak Ditemukan');
         }
         $field = (!empty($find->data_field)) ? json_decode($find->data_field, true) : NULL;
         $looping_data = (!empty($find->data_loop)) ? (collect(get_module_info('looping_data'))->where([0], 'Sort')->first() ? json_encode(collect(json_decode($find->data_loop, true))->sortBy('sort')) : $find->data_loop) : NULL;
+
+
 
         if (empty($id)) {
             if (in_array(get_post_type(), ['media']))
@@ -199,7 +201,7 @@ class BackendController extends Controller
                         $fieldname = underscore($value[0]);
                         if ($value[1] == 'file') {
                             if ($req->file($fieldname)) {
-                                $custom_field[$fieldname] = $this->upload_file($req->file($fieldname), get_post_type(), dec64($id), $find->created_at);
+                                $custom_field[$fieldname] = $this->upload_file($req->file($fieldname), get_post_type(), $id, $find->created_at);
 
                             } else {
                                 $old = 'old_' . $fieldname;
@@ -385,8 +387,11 @@ class BackendController extends Controller
 
 
     }
+    //start handler upload file
     function upload_file($req, $post_type, $id, $date)
     {
+        if (!is_dir(public_path('upload')))
+            mkdir(public_path('upload'));
         if (!is_dir(public_path('upload/' . $post_type))) {
             mkdir(public_path('upload/' . $post_type));
         }
@@ -415,11 +420,11 @@ class BackendController extends Controller
             } else {
                 $req->move($path, $name);
             }
-            $this->media_store($id, $mime, $dir . $name, $name, $fname);
+            media_store($id, $mime, $dir . $name, $name, $fname);
             return $dir . $name;
         }
     }
-
+//end handler upload file
     function dirpost($post_date)
     {
         $y = date('Y', strtotime($post_date));
@@ -484,9 +489,9 @@ class BackendController extends Controller
         return DataTables::of($data)
             ->addIndexColumn()
             ->addColumn('title', function ($row) {
-                if (get_module_info('post_type') == 'media') {
-                    if (!file_exists(public_path($row->url)) || Post::where('id', $row->parent)->count() == 0) {
-                        Post::where('id', $row->id)->delete();
+                if (get_post_type()== 'media') {
+                    if (!file_exists(public_path($row->url)) || !$row->post_parent()->exists()) {
+                        $row->delete();
                     }
                 }
                 $group = $this->get_group($row->group);

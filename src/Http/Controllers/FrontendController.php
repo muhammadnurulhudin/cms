@@ -1,14 +1,21 @@
 <?php
 namespace Udiko\Cms\Http\Controllers;
 
-use Request;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-
+use Udiko\Cms\Http\Controllers\VisitorController;
+use Illuminate\Session\Events\SessionStarted;
 class FrontendController extends Controller
 {
-    public function home()
+    function __construct(){
+        $this->middleware(function ($request, $next){
+        VisitorController::visitor_counter();
+        return $next($request);
+      });
+    }
+    public function home(Request $req)
     {
-        return "ini home";
+        return view('views::layouts.master');
     }
     public function index()
     {
@@ -20,6 +27,10 @@ class FrontendController extends Controller
         $detail = $post->detail(get_post_type(), $slug);
         if (empty($detail))
             abort('404');
+        if ($detail->slug != $slug)
+            return redirect($detail->url);
+
+
         config(['modules.data' => $detail]);
         return view('views::layouts.master');
 

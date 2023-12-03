@@ -133,6 +133,12 @@ elseif(request()->segment(1) && $modul = collect(get_module())->where('public',t
             'modules.current' => $attr
         ]);
 }else{
+    $attr['post_type'] = null;
+    $attr['view_type'] = 'home';
+    $attr['view_path'] = 'home';
+    config([
+        'modules.current' => $attr
+    ]);
     Route::get('/', [\Udiko\Cms\Http\Controllers\FrontendController::class,'home'])->middleware('web');
 
 }

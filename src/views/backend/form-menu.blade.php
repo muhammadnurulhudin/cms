@@ -1,10 +1,10 @@
-@extends('views::backend.layout.app',['title'=>get_module_info('title_crud')])
+@extends('views::backend.layout.app',['title'=>get_post_type('title_crud')])
 @section('content')
 <form class="editor-form" action="{{URL::full()}}" method="post" enctype="multipart/form-data">
    @csrf
    <div class="row">
       <div class="col-lg-12">
-         <h3 style="font-weight:normal"> <i class="fa {{get_module_info('icon')}}" aria-hidden="true"></i> {{get_module_info('title_crud')}} <a href="{{admin_url(get_post_type())}}" class="btn btn-outline-danger btn-sm pull-right" data-toggle="tooltip" title="Kembali Ke Index Data"> <i class="fa fa-undo" aria-hidden></i> Kembali</a></h3>
+         <h3 style="font-weight:normal"> <i class="fa {{get_module_info('icon')}}" aria-hidden="true"></i> {{get_post_type('title_crud')}} <a href="{{admin_url(get_post_type())}}" class="btn btn-outline-danger btn-sm pull-right" data-toggle="tooltip" title="Kembali Ke Index Data"> <i class="fa fa-undo" aria-hidden></i> Kembali</a></h3>
          <br>
 
       </div>
@@ -17,7 +17,7 @@
 
 
 
-            @include('admin.list-menu')
+            @include('views::backend.list-menu')
 
       </div>
       <div class="col-lg-3">

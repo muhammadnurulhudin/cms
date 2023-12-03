@@ -2,12 +2,12 @@
 namespace Udiko\Cms;
 use Illuminate\Support\ServiceProvider;
 
-// use Intervention\Image\ImageServiceProvider;
+use Illuminate\Http\Request;
 use Config;
 class CmsServiceProvider extends ServiceProvider
 {
 
-    public function boot()
+    public function boot(Request $req)
     {
         require_once(__DIR__ . "/Inc/Helpers.php");
         $this->mergeConfigFrom(__DIR__ . "/config/modules.php", "modules");
@@ -22,6 +22,7 @@ class CmsServiceProvider extends ServiceProvider
             __DIR__ . '/Models/User.php' => app_path('Models/User.php'),
         ], 'cms');
         cache_content_initial();
+
     }
     /**
      * Summary of register
