@@ -791,3 +791,13 @@ if (!function_exists(function: 'get_custom_view')) {
   return $l;
   }
 }
+if (!function_exists(function: 'db_connected')) {
+    function db_connected(){
+    try {
+        \DB::connection()->getPDO();
+        return true;
+        } catch (\Exception $e) {
+        return false;
+    }
+}
+}

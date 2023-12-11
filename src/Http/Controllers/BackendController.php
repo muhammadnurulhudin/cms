@@ -70,6 +70,7 @@ class BackendController extends Controller
 
     public function dashboard()
     {
+
         $da = array();
         for ($i = 0; $i <= 6; $i++) {
             array_push($da, date("Y-m-d", strtotime("-" . $i . " days")));
