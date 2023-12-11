@@ -8,6 +8,7 @@ use Udiko\Cms\Models\Group;
 use Udiko\Cms\Models\User;
 use Udiko\Cms\Models\Comment;
 use Udiko\Cms\Models\Option;
+use Udiko\Cms\Models\Visitor;
 use Illuminate\Http\Request;
 use Str;
 use File;
@@ -15,6 +16,7 @@ use Image;
 use Illuminate\Support\Facades\Http;
 use Yajra\DataTables\Facades\DataTables;
 use ZipArchive;
+
 class BackendController extends Controller
 {
     public function __construct()
@@ -42,11 +44,11 @@ class BackendController extends Controller
     }
     public function visitor()
     {
-        $data = request('timevisit') ? Visitor::where('date', request('timevisit'))->orderby('last_activity', 'desc') : Visitor::where('date', date('Y-m-d'))->orderby('last_activity', 'desc');
+        $data = request('timevisit') ? Visitor::whereDate('created_at', request('timevisit'))->latest('created_at') : Visitor::whereDate('created_at', date('Y-m-d'))->latest('created_at');
         return Datatables::of($data)
             ->addIndexColumn()
             ->addColumn('time', function ($row) {
-                return '<code>' . time_ago($row->date . ' ' . $row->time) . '</code>';
+                return '<code>' . time_ago($row->created_at) . '</code>';
             })
             ->addColumn('ip_location', function ($row) {
                 $city = json_decode($row->ip_location)->city ?? null;
@@ -72,8 +74,12 @@ class BackendController extends Controller
         for ($i = 0; $i <= 6; $i++) {
             array_push($da, date("Y-m-d", strtotime("-" . $i . " days")));
         }
-        $weekago = json_decode(json_encode(collect($da)->sort()), true);
-        return view('views::backend.dashboard', compact('weekago'));
+        $data['weekago'] = json_decode(json_encode(collect($da)->sort()), true);
+        $data['type'] = request()->user()->level == 'admin' ? collect(get_module())->where('detail', true) : collect(get_module())->where('detail', true)->where('operator', true);
+        $data['post'] =  Post::where('status','publish')->whereIn('type',$data['type']->pluck('name'))->select('type')->get();
+        $data['lastpost'] = Post::with('user')->latest('created_at')->wherein('type', $data['type']->pluck('name'))->whereStatus('publish')->limit(5)->get();
+        $data['visitor'] = Visitor::select('date')->get();
+        return view('views::backend.dashboard', $data);
     }
     public function comments(Request $req)
     {
@@ -190,8 +196,8 @@ class BackendController extends Controller
 
             if ($req->save != 'save') {
                 //EDIT ACTION
-                if ($req->mime_type == 'html') {
-                    make_custom_view($id, $req->post_content);
+                if ($req->mime == 'html') {
+                    make_custom_view($id, $req->content);
                 }
                 if (Post::where('title', $req->title)->whereNotIn('id', [$id])->where('type', get_post_type())->count() > 0)
                     return back()->with('danger', 'Upss...' . get_module_info('data_title') . ' Sudah digunakan !');
@@ -547,7 +553,7 @@ class BackendController extends Controller
             ->addColumn('aksi', function ($row) {
                 $child = $row->child->where('type', '!=', 'media')->count();
                 $alert = $child > 0 ? 'Tidak dapat dihapus, Data Digunakan Pada Modul Lain' : 'Tidak dapat dihapus, Anda bukan pemilik Konten.';
-                $del = (($row->user == Auth::user() || Auth::user()->level == 'admin') && $child < 1) ? '<a  title="Hapus" onclick="deleteAlert(\'' . delete_post_url($row->id) . '\')" href="javascript:void(0)" class="text-danger" ><i class="fa fa-trash"></i></a>' : '<a  title="Hapus" onclick="alert(\'' . $alert . '\')" href="javascript:void(0)" class="text-muted" ><i class="fa fa-trash"></i></a>';
+                $del = (($row->user == Auth::user() || Auth::user()->level == 'admin') && $child < 1) ? '<a  title="Hapus" onclick="deleteAlert(\'' . delete_post_url($row->id) . '\')" href="javascript:void(0)" class="text-danger" ><i class="fa fa-trash"></i></a>' : '<a  title="Hapus" onclick="notif(\'' . $alert . '\',\'danger\')" href="javascript:void(0)" class="text-muted" ><i class="fa fa-trash"></i></a>';
 
                 $dis = ($row->type == 'html' || $row->type == 'media') ? ($row->type == 'media' ? '<a href="' . edit_post_url($row->id) . '" title="Lihat"><i class="fa fa-eye"></i></a>' : '<a href="' . edit_post_url($row->id) . '" title="Edit"><i class="fa fa-edit"></i></a>') :
                     '<a href="' . edit_post_url($row->id) . '" title="Edit"><i class="fa fa-edit"></i></a> &nbsp;' . $del;
@@ -583,6 +589,7 @@ class BackendController extends Controller
 
     function setting(Request $request, Option $option)
     {
+        admin_only();
         $data['web_type'] = config('modules.config.web_type');
         $data['optionable'] = array_merge(config('modules.config.optionable') ?? [], [
             'Telepon',
@@ -610,8 +617,8 @@ class BackendController extends Controller
         $data['home_page'] = Post::whereType('halaman')->whereMime('html')->select('id', 'title')->get();
 
         if ($request->all()) {
-            if($value=$request->home_page){
-                Option::updateOrCreate(['name'=>'home_page'],['value' => $value]);
+            if ($value = $request->home_page) {
+                Option::updateOrCreate(['name' => 'home_page'], ['value' => $value]);
             }
             foreach ($data['optionable'] as $row) {
                 $key = _us($row);
@@ -650,35 +657,39 @@ class BackendController extends Controller
         // return back()->with('success', 'Pengaturan Berhasil Disimpan');
         return view('views::backend.setting', $data);
     }
-    function users(Request $request,User $user){
-        if($request->delete){
-            Post::where('user_id',$request->delete)->update(['user_id'=>1]);
-            $id=  $user->findOrFail($request->delete);
+    function users(Request $request, User $user)
+    {
+        admin_only();
+
+        if ($request->delete) {
+            Post::where('user_id', $request->delete)->update(['user_id' => 1]);
+            $id = $user->findOrFail($request->delete);
             $id->delete();
-            return back()->with('success','Hapus Pengguna Sukses');
+            return back()->with('success', 'Hapus Pengguna Sukses');
         }
-        if($request->save){
-          if($request->save=='add'){
-            $data = array(
-              'name'=>$request->name ?? '',
-              'email'=>$request->email ?? '',
-              'slug'=> Str::slug($request->name),
-              'level'=> $request->level,
-              'url'=> 'author/'.Str::slug($request->name),
-              'username'=>$request->username ?? '',
-              'password'=> bcrypt($request->password) ?? '',
-              'status'=>$request->status ?? 'Nonaktif'
-            );
-            $id = User::create($data);
-            if($files = $request->file('photo')){
-                if(allow_mime($files->getClientMimeType()) && in_array($files->getClientOriginalExtension(),['jpg','png'])){
-                    $fname = $id->id.'.'.$files->getClientOriginalExtension();
-                    $files->move(public_path('users'),$fname);
-                };
+        if ($request->save) {
+            if ($request->save == 'add') {
+                $data = array(
+                    'name' => $request->name ?? '',
+                    'email' => $request->email ?? '',
+                    'slug' => Str::slug($request->name),
+                    'level' => $request->level,
+                    'url' => 'author/' . Str::slug($request->name),
+                    'username' => $request->username ?? '',
+                    'password' => bcrypt($request->password) ?? '',
+                    'status' => $request->status ?? 'Nonaktif'
+                );
+                $id = User::create($data);
+                if ($files = $request->file('photo')) {
+                    if (allow_mime($files->getClientMimeType()) && in_array($files->getClientOriginalExtension(), ['jpg', 'png'])) {
+                        $fname = $id->id . '.' . $files->getClientOriginalExtension();
+                        $files->move(public_path('users'), $fname);
+                    }
+                    ;
                 }
-            $id->update(['photo'=> isset($fname)? 'users/'.$fname : 'user.png']);
-            return back()->with('success','Tambah Pengguna Sukses');
-          }else {
+                $id->update(['photo' => isset($fname) ? 'users/' . $fname : 'user.png']);
+                return back()->with('success', 'Tambah Pengguna Sukses');
+            } else {
                 $find = User::findOrFail($request->save);
                 $find->update([
                     'level' => $request->level,
@@ -688,58 +699,100 @@ class BackendController extends Controller
                     'email' => $request->email,
                     'username' => $request->username,
                     'password' => bcrypt($request->password) ?? $find->password]);
-                    if($files = $request->file('photo')){
-                        if(allow_mime($files->getClientMimeType()) && in_array($files->getClientOriginalExtension(),['jpg','png'])){
-                            $fname = $find->id.'.'.$files->getClientOriginalExtension();
-                            $files->move(public_path('users'),$fname);
-                        };
-                        }
-                $find->update(['photo'=> isset($fname) ? 'users/'.$fname : $find->photo]);
-            return back()->with('success','Edit Pengguna Sukses');
+                if ($files = $request->file('photo')) {
+                    if (allow_mime($files->getClientMimeType()) && in_array($files->getClientOriginalExtension(), ['jpg', 'png'])) {
+                        $fname = $find->id . '.' . $files->getClientOriginalExtension();
+                        $files->move(public_path('users'), $fname);
+                    }
+                    ;
+                }
+                $find->update(['photo' => isset($fname) ? 'users/' . $fname : $find->photo]);
+                return back()->with('success', 'Edit Pengguna Sukses');
 
-          }
+            }
         }
-        $data['users'] = $user->where('id','<>', $request->user()->id)->get();
+        $data['users'] = $user->where('id', '<>', $request->user()->id)->get();
         return view('views::backend.users', $data);
     }
-function template(Request $request){
+    function template(Request $request)
+    {
+        admin_only();
 
         $apitemplate = Http::get('http://larawebcms.test/apitemplate')->json();
-        $data['templates'] = $request->type && $request->type!='semua'  ? collect(json_decode(json_encode($apitemplate)))->where('type',$request->type) : collect(json_decode(json_encode($apitemplate)));
+        $data['templates'] = $request->type && $request->type != 'semua' ? collect(json_decode(json_encode($apitemplate)))->where('type', $request->type) : collect(json_decode(json_encode($apitemplate)));
 
-        if($request->select){
-            $selected_template =  collect($data['templates'])->where('id',$request->select)->first();
-            if(!empty($selected_template)){
-              if($request->apply){
-                $filename = 'template.zip';
-                $tempImage = tempnam(sys_get_temp_dir(), $filename);
-                copy($selected_template->download, $tempImage);
+        if ($request->select) {
+            $selected_template = collect($data['templates'])->where('id', $request->select)->first();
+            if (!empty($selected_template)) {
+                if ($request->apply) {
+                    $filename = 'template.zip';
+                    $tempImage = tempnam(sys_get_temp_dir(), $filename);
+                    copy($selected_template->download, $tempImage);
 
-                $zip = new ZipArchive;
-                if ($zip->open($tempImage) === TRUE) {
-                // dd('berhasil');
-                    // if($zip->setPassword(get_option('passbackup'))):
-                    // if($zip->getFromName($resfile['type'].".lw"))
-                    $zip->extractTo(resource_path('views/template/'.$selected_template->path));
-                    $zip->close();
-                if(File::moveDirectory(resource_path('views/template/'.$selected_template->path.'/asset'), public_path('template/'.$selected_template->path))){
-                  Option::whereName('template')->update(['value'=>$selected_template->path]);
-                  recache_option();
-                  return back()->with('success','Template Berhasil Diterapkan');
-                }else{
-                  return back()->with('danger','Template Gagal Diterapkan');
+                    $zip = new ZipArchive;
+                    if ($zip->open($tempImage) === TRUE) {
+                        // dd('berhasil');
+                        // if($zip->setPassword(get_option('passbackup'))):
+                        // if($zip->getFromName($resfile['type'].".lw"))
+                        $zip->extractTo(resource_path('views/template/' . $selected_template->path));
+                        $zip->close();
+                        if (File::moveDirectory(resource_path('views/template/' . $selected_template->path . '/assets'), public_path('template/' . $selected_template->path))) {
+                            Option::whereName('template')->update(['value' => $selected_template->path]);
+                            recache_option();
+                            return back()->with('success', 'Template Berhasil Diterapkan');
+                        } else {
+                            return back()->with('danger', 'Template Gagal Diterapkan');
+
+                        }
+
+                    }
 
                 }
-
-                }
-
-              }
                 $data['detail'] = $selected_template;
+            } else {
+                return redirect(url()->current())->with('warning', 'Tempate Tidak Ditemukan');
             }
-            else{
-              return redirect(url()->current())->with('warning','Tempate Tidak Ditemukan');
-            }
-          }
+        }
         return view('views::backend.template', $data);
-}
+    }
+    function account(Request $request, User $user)
+    {
+        $data = $user->findOrFail(request()->user()->id);
+        if ($request->save) {
+            $validate = $request->validate([
+                'username' => 'required',
+                'email' => 'required',
+                'name' => 'required',
+            ]);
+            if($file=$request->file('photo')){
+                if(allow_mime($file->getClientMimeType()) && in_array($file->getClientOriginalExtension(),['jpg','png'])){
+                    $fname = $data->id.'.'.$file->getClientOriginalExtension();
+                    $file->move(public_path('users'),$fname);
+                    $validate['photo'] = 'users/'.$fname;
+                }
+            }
+
+            if(!$user->whereUsername($request->username)->where('id','<>',$data->id)->exists()){
+                if (!$user->whereEmail($request->email)->where('id', '<>', $data->id)->exists()) {
+                    if ($request->password2 && $request->password){
+                        if($request->password2 == $request->password && strlen($request->password2) > 7) {
+                            $validate['password'] = bcrypt($request->password);
+                        } else {
+                            return back()->with('danger', 'Konfirmasi password harus sama | minimal 8 karakter');
+                        }
+                    }
+
+                    $data->update($validate);
+                    return back()->with('success', 'Akun Berhasil Diupdate');
+                }
+                else{
+                return back()->with('danger','Email telah digunakan');
+
+                }
+            }else{
+                return back()->with('danger','Username telah digunakan');
+            }
+        }
+        return view('views::backend.account', compact('data'));
+    }
 }

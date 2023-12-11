@@ -14,7 +14,7 @@ class VisitorController extends Controller
             // Simpan data pengunjung ke dalam database
             Visitor::create([
                 'ip' => request()->ip(),
-                'country' => 'none',
+                'ip_location' => 'none',
                 'browser' => self::browser(),
                 'session' => Session::getId(),
                 'device' => self::device(),

@@ -5,17 +5,12 @@
 <div class="col-lg-12"><h3 style="font-weight:normal"> <i class="fa fa-tachometer"></i> Dashboard</h3>
   <br>
   <div class="row">
-    @php
-    $type = Auth::user()->level=='admin' ? collect(get_module(true))->where('detail',true)->where('operator',true) : collect(get_module(true))->where('detail',true);
-
-    $posts = \Udiko\Cms\Models\Post::where('status','publish')->whereIn('type',$type->pluck('name'))->select('type')->get();
-    @endphp
     @foreach($type as $row)
-          <div title="Klik untuk selengkapnya" class="pointer col-md-6 col-lg-4 " onclick="location.href='{{admin_url($row['name'])}}'">
-            <div class="widget-small primary coloured-icon"><i class="icon fa {{$row['icon']}} fa-3x"></i>
+          <div title="Klik untuk selengkapnya" class="pointer col-md-6 col-lg-4 " onclick="location.href='{{admin_url($row->name)}}'">
+            <div class="widget-small danger coloured-icon"><i class="icon fa {{$row->icon}} fa-3x"></i>
               <div class="info">
-                <h4>{{$row['title']}}</h4>
-                <p><b>{{count(collect($posts->where('type',$row['name'])))}}</b></p>
+                <h4>{{$row->title}}</h4>
+                <p><b>{{collect($post)->where('type',$row->name)->count()}}</b></p>
               </div>
             </div>
           </div>
@@ -34,11 +29,11 @@
     <th>Judul</th>
   </tr></thead>
   <tbody>
-  @foreach(\Udiko\Cms\Models\Post::with('user')->latest('created_at')->wherein('type',$type)->whereStatus('publish')->limit(5)->get() as $r )
+  @foreach($lastpost as $r )
    <tr>
     <td>{{Str::title($r->type)}}</td>
     <td><code>{{time_ago($r->created_at)}}</code></td>
-    <td><a href="{{url(admin_path().'/'.$r->type.'/edit/'.enc64($r->id))}}">{{$r->title}}</a>  <i class="text-muted">oleh {{$r->user->name}}</i></td>
+    <td><a href="{{url(admin_path().'/'.$r->type.'/edit/'.$r->id)}}">{{$r->title}}</a>  <i class="text-muted">oleh {{$r->user->name}}</i></td>
    </tr>
   @endforeach
   </tbody>
@@ -49,15 +44,16 @@
 <div class="col-lg-4">
   <div class="card" style="padding:15px">
   <h4 for="" style="margin-bottom:20px"> <i class="fa fa-bar-chart" aria-hidden="true"></i> Grafik Pengunjung Mingguan</h4>
+  @include('views::backend.visitor-chart')
+
 </div>
 </div>
 <div class="col-lg-12 mt-3">
   <div class="card" style="padding:15px">
-  <h4 for=""  style="margin-bottom:20px"> <i class="fa fa-info" aria-hidden="true"></i> Rincian Trafik<span class="pull-right"><small>Pilih </small> <input max="{{date('Y-m-d')}}" value="{{request('timevisit') ?? date('Y-m-d')}}" onchange="if(this.value) location.href='{{url()->current().'?timevisit='}}'+this.value" style="width:120px" type="date" class="form-control-sm " ></span></h4>
+  <h4 for=""  style="margin-bottom:20px"> <i class="fa fa-info" aria-hidden="true"></i> Rincian Trafik {{request('timevisit') ? tanggal_indo(request('timevisit').' '.date('H:i:s')) : 'Hari ini'}}<span class="pull-right"><small>Pilih </small> <input max="{{date('Y-m-d')}}" value="{{request('timevisit') ?? date('Y-m-d')}}" onchange="if(this.value) location.href='{{url()->current().'?timevisit='}}'+this.value" style="width:120px" type="date" class="form-control-sm " ></span></h4>
 
   <div class="table-responsive"> <table class="table datat" style="font-size:small;width:100%">
   <thead><tr>
-    <th width="2%">No</th>
     <th width="18%">Time</th>
     <th width="15%">Page</th>
     <th width="15%">Reference</th>
@@ -82,7 +78,6 @@
         serverSide: true,
         ajax: "{{ url(admin_path().'/visitor'.str_replace('/'.admin_path().'/dashboard','',request()->getRequestUri())) }}",
         columns: [
-            {data: 'DT_RowIndex', name: 'DT_RowIndex',searchable: false},
             {data: 'time', name: 'time'},
             {data: 'page', name: 'page'},
             {data: 'reference', name: 'reference'},
@@ -97,4 +92,17 @@
     </script>
 
 </div>
+@push('styles')
+
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/rowreorder/1.4.1/css/rowReorder.dataTables.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
+
+@endpush
+@push('scripts')
+<script type="text/javascript" src="{{secure_asset('backend/js/plugins/jquery.dataTables.min.js')}}"></script>
+     <script type="text/javascript" src="{{secure_asset('backend/js/plugins/dataTables.bootstrap.min.js')}}"></script>
+     <script type="text/javascript" src="https://cdn.datatables.net/rowreorder/1.4.1/js/dataTables.rowReorder.min.js"></script>
+     <script type="text/javascript" src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+     <script type="text/javascript">$('#sampleTable').DataTable();</script>
+@endpush
 @endsection

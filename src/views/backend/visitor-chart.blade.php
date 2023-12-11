@@ -12,11 +12,8 @@ var chartData = {
             fillColor: "#79D1CF",
             strokeColor: "#79D1CF",
             data: [
-                @php
-                $visitor = App\Models\Visitor::whereIn('date',$weekago)->select('date')->get();
-                @endphp
               @foreach($weekago as $r)
-            {{count(collect($visitor)->where('date',$r))}},
+            {{collect($visitor)->where('date',$r)->count()}},
             @endforeach
           ]
         }

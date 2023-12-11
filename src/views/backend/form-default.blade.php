@@ -140,11 +140,11 @@
 
          </script>
          @endif
-         @if(get_module_info('post_type')=='halaman')
-         <small>Tampilan Halaman</small>
+         @if(get_post_type()=='halaman')
+         <small>Jenis Halaman {!!help("Default (Halaman standar), Custom HTML (Source Code HTML dinamis / static / copy paster sumber lain)")!!}</small>
          <select class="form-control form-control-sm" name="mime">
-           <option value="">Bawaan Template</option>
-            <option value="html" {{$edit && $edit->mime=='html'?'selected':''}}>Kustom HTML</option>
+           <option value="">Default</option>
+            <option value="html" {{$edit && $edit->mime=='html'?'selected':''}}>Custom HTML</option>
          </select>
          <!-- <small>Nama Domain {!!help("Opsi Jika Ingin mengakses halaman ini sebagai domain khusus")!!} </small>
          <input type="text" class="form-control form-control-sm" name="domain_custom" placeholder="namadomain.com" value="{{$edit->domain_custom ?? ''}}"> -->
@@ -200,7 +200,7 @@
                </label>
             </div>
          </div>
-         <button @if(Auth::user()->level=='admin' || Auth::user()==$edit->author) name="save" value="@if(empty($edit))add @else {{$edit->id}} @endif" type="submit" data-toggle="tooltip" title="Simpan Perubahan" @else type="button"  onclick="alert('Anda bukan pemilik konten ini!')" @endif class="btn btn-md btn-outline-primary w-100 add">SIMPAN</button><br><br>
+         <button @if(Auth::user()->level=='admin' || Auth::user()==$edit->author) name="save" value="@if(empty($edit))add @else {{$edit->id}} @endif" type="submit" data-toggle="tooltip" title="Simpan Perubahan" @else type="button"  onclick="notif('Anda bukan pemilik konten ini!','danger')" @endif class="btn btn-md btn-outline-primary w-100 add">SIMPAN</button><br><br>
       </div>
    </div>
 </form>

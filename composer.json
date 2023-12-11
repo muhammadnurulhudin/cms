@@ -26,7 +26,8 @@
     "require": {
         "yajra/laravel-datatables-oracle": "^10.11",
         "intervention/image": "dev-master",
-        "guzzlehttp/guzzle": "*"
+        "guzzlehttp/guzzle": "*",
+        "stevebauman/location":"*"
     }
 
 }

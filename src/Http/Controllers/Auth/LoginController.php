@@ -48,7 +48,7 @@ class LoginController extends Controller
         if(Auth::attempt($credentials))
         {
             $request->session()->regenerate();
-            if(Auth::user()->status == '1'){
+            if(Auth::user()->status == 'Aktif'){
            Auth::user()->update(['last_login_at'=>now(),'last_login_ip'=>request()->ip()]);
             if(session()->has('urlback')){
                 return redirect(session('urlback'));

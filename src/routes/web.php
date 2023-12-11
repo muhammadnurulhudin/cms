@@ -65,7 +65,7 @@ if (request()->segment(1) == $admin_path && !in_array(request()->segment(2),['lo
             Route::match(['get', 'post'], 'dashboard', 'dashboard');
             Route::match(['get', 'post'],  'comments', 'comments');
             Route::match(['get', 'post'], 'unlink', 'delfile');
-            // Route::match(['get', 'post'], 'visitor', 'visitor');
+            Route::match(['get', 'post'], 'visitor', 'visitor');
             Route::match(['get', 'post'], 'setting', 'setting');
             Route::match(['get', 'post'], 'users', 'users');
             Route::match(['get', 'post'], 'account', 'account');

@@ -15,7 +15,7 @@ class Post extends Model
 {
     use HasFactory, HasUuids;
     protected $fillable = [
-        'title', 'slug', 'content', 'url', 'thumbnail', 'thumbnail_description', 'keyword', 'description', 'parent', 'user_id', 'pinned', 'type', 'redirect_to', 'status', 'visited', 'allow_comment', 'data_field', 'data_loop', 'created_at'
+        'title', 'slug', 'content', 'url', 'thumbnail', 'thumbnail_description', 'keyword', 'description', 'parent', 'user_id', 'pinned', 'type', 'redirect_to', 'status', 'visited', 'allow_comment', 'mime','data_field', 'data_loop', 'created_at'
     ];
 
 

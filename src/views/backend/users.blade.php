@@ -1,7 +1,7 @@
 @extends('views::backend.layout.app',['title'=>'Pengguna'])
 @section('content')
 <div class="row">
-<div class="col-lg-12"><h3 style="font-weight:normal"> <i class="fa fa-users" aria-hidden="true"></i> Pengguna <a href="javascript:void(0)" onclick="$('#thumb').attr('src','{{thumb('gbr.jpg')}}');$('.photo').attr('required','required');$('input[type=text]' ).val('');;$('input[type=email]' ).val('');$('.save').val('add');$('.modtitle').html('Tambah');$('.modal').modal('show')" class="btn btn-outline-primary btn-sm pull-right"> <i class="fa fa-plus" aria-hidden></i> Tambah</a></h3>
+<div class="col-lg-12"><h3 style="font-weight:normal"> <i class="fa fa-users" aria-hidden="true"></i> Pengguna <a href="javascript:void(0)" onclick="$('#thumb').attr('src','{{thumb('gbr.jpg')}}');$('input[type=text]' ).val('');;$('input[type=email]' ).val('');$('.save').val('add');$('.modtitle').html('Tambah');$('.modal').modal('show')" class="btn btn-outline-primary btn-sm pull-right"> <i class="fa fa-plus" aria-hidden></i> Tambah</a></h3>
   <br>
 <table class="table table-hover table-bordered" id="sampleTable">
   <thead  style="background:#f7f7f7">
@@ -47,10 +47,10 @@
         @csrf
       <div class="modal-body">
         <div class="form-group">
-               <center><img class="img-responsive" style="border:none;width:100%" id="thumb" src="https://bengkaliskab.go.id/image/thumb.png" /></center><br>
+               <center><img class="img-responsive" style="border:none;width:100%" id="thumb" src="{{thumb('user.png')}}" /></center><br>
                <input type="hidden" class="oldphoto" name="oldphoto" value="">
           <label for="">Foto Pengguna</label>
-          <input onchange="readURL(this);" required type="file" class="form-control photo" name="photo" value="">
+          <input onchange="readURL(this);"  type="file" class="form-control photo" name="photo" value="">
         </div>
 
           <div class="form-group">

@@ -16,12 +16,13 @@ return new class extends Migration
             $table->id();
             $table->integer('last_activity');
             $table->ipAddress('ip');
-            $table->string('country',5);
+            $table->json('ip_location');
             $table->string('browser');
             $table->string( 'session');
             $table->string( 'device');
             $table->string( 'os');
             $table->string( 'page');
+            $table->date( 'date');
             $table->string( 'reference');
             $table->timestamps();
         });

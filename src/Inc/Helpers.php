@@ -1,9 +1,51 @@
 <?php
 
 if (!function_exists('tanggal_indo')) {
-    function tanggal_indo($date)
+    function tanggal_indo($val,$with0=false)
     {
-        return $date . 'ok';
+
+  $waktu = date('Y-m-d', strtotime($val));
+  $hari_array = array(
+      'Minggu',
+      'Senin',
+      'Selasa',
+      'Rabu',
+      'Kamis',
+      'Jumat',
+      'Sabtu'
+  );
+  $hr = date('w', strtotime($waktu));
+  $hari = $hari_array[$hr];
+  if($with0==true){
+  $tanggal = date('d', strtotime($waktu));
+  }else{
+  $tanggal = date('j', strtotime($waktu));
+  }
+  $bulan_array = array(
+      1 => 'Januari',
+      2 => 'Februari',
+      3 => 'Maret',
+      4 => 'April',
+      5 => 'Mei',
+      6 => 'Juni',
+      7 => 'Juli',
+      8 => 'Agustus',
+      9 => 'September',
+      10 => 'Oktober',
+      11 => 'November',
+      12 => 'Desember',
+  );
+
+  $bl = date('n', strtotime($waktu));
+  $bulan = $bulan_array[$bl];
+  $tahun = date('Y', strtotime($waktu));
+  $jam = date('H:i T', strtotime($val));
+
+  //untuk menampilkan hari, tanggal bulan tahun jam
+  //return "$hari, $tanggal $bulan $tahun $jam";
+
+  //untuk menampilkan hari, tanggal bulan tahun
+  return $hari.", ".$tanggal." ".$bulan." ".$tahun;
     }
 }
 if (!function_exists('size_as_kb')) {
@@ -644,6 +686,12 @@ if (!function_exists(function: '_us')) {
         return strtolower(preg_replace('/[^A-Za-z0-9\-]/', '_', trim($val)));
     }
 }
+if (!function_exists(function: 'admin_only')) {
+    function admin_only()
+    {
+        return request()->user()->level != 'admin' ? Redirect::to(admin_path().'/dashboard')->send()->with('danger', 'Akses Terbatas untuk administrator') : true;
+    }
+}
 if (!function_exists(function: '_tohref')) {
     function _tohref($href, $val)
     {
@@ -675,4 +723,71 @@ if (!function_exists(function: 'allow_mime')) {
         $mimelist = array('application/pdf','image/jpeg','image/gif','video/mp4','application/vnd.ms-excel','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','application/vnd.ms-powerpoint','application/vnd.openxmlformats-officedocument.presentationml.presentation','application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/msword','text/csv','image/png','image/x-png','application/zip','application/x-rar-compressed','image/webp','audio/x-wav');
         return in_array($detectmime, $mimelist) ? true : false;
     }
+}
+
+if (!function_exists(function: 'time_ago')) {
+    function time_ago($datetime, $full = false) {
+    $now = new DateTime;
+    $ago = new DateTime($datetime);
+    $diff = $now->diff($ago);
+
+    $diff->w = floor($diff->d / 7);
+    $diff->d -= $diff->w * 7;
+
+    $string = array(
+        'y' => 'tahun',
+        'm' => 'bulan',
+        'w' => 'minggu',
+        'd' => 'hari',
+        'h' => 'jam',
+        'i' => 'menit',
+        's' => 'detik',
+    );
+    foreach ($string as $k => &$v) {
+        if ($diff->$k) {
+            $v = $diff->$k . ' ' . $v . ($diff->$k > 1 ? '' : '');
+        } else {
+            unset($string[$k]);
+        }
+    }
+
+    if (!$full) $string = array_slice($string, 0, 1);
+    return $string ? implode(', ', $string) . ' yang lalu' : 'Baru saja';
+  }
+}
+if (!function_exists(function: 'get_ip_info')) {
+    function get_ip_info() {
+    $data = \Location::get(request()->ip());
+    return $data ? json_encode(['countryCode'=>Str::lower($data->countryCode),'country'=>$data->countryName,'city'=>$data->cityName,'region'=>$data->regionName]) : json_encode(array());
+
+  }
+}
+if (!function_exists(function: 'make_custom_view')) {
+    function make_custom_view($id,$content){
+    $data = $content;
+    $path = resource_path('views/custom_view');
+    if(!is_dir($path)){
+      mkdir($path);
+    }
+    $file = $path.'/'.$id.'.blade.php';
+    $myfile = fopen($file, "w") or die("Unable to open file!");
+    fwrite($myfile, $data);
+    fclose($myfile);
+  }
+}
+if (!function_exists(function: 'get_custom_view')) {
+    function get_custom_view($id){
+    if(!file_exists(resource_path('views/custom_view/'.$id.'.blade.php'))){
+      file_put_contents(resource_path('views/custom_view/'.$id.'.blade.php'),'<html></html>');
+    }
+    $file = resource_path('views/custom_view/'.$id.'.blade.php');
+  $fn = fopen($file,"r");
+  $l = '';
+  while(! feof($fn))  {
+  $result = fgets($fn);
+  $l .= $result;
+  }
+  fclose($fn);
+  return $l;
+  }
 }
