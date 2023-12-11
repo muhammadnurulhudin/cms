@@ -24,7 +24,6 @@ return new class extends Migration
 
         });
         Schema::create('group_post', function (Blueprint $table) {
-            $table->Uuid('id')->primary();
             $table->foreignUuid('post_id')->index()->constrained()->onDelete('CASCADE');
             $table->foreignUuid('group_id')->index()->constrained()->onDelete('CASCADE');
         });

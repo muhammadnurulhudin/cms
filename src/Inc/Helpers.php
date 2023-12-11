@@ -850,7 +850,7 @@ if (!function_exists(function: 'get_group')) {
     $attr = $class ? 'class="'.$class.'"' : '';
     $res = '';
     foreach($array as $r){
-    $res .= '<a '.$attr.' href="'.url($r->group->url).'">'.$r->group->name.'</a>, ';
+    $res .= '<a '.$attr.' href="'.url($r->url).'">'.$r->name.'</a>, ';
   }
   return rtrim($res,', ');
   }
@@ -907,8 +907,8 @@ if (!function_exists(function: 'undermaintenance')) {
     <article>
         <h1>We&rsquo;ll be back soon!</h1>
         <div>
-            <p>Mohon maaf untuk saat ini '.get_option('site_title').' sedang dalam perbaikan. Silahkan akses dalam beberapa waktu kedepan!</p>
-            <p>Terima kasih, Tim IT '.get_option('nama_organisasi').'</p>
+            <p>Mohon maaf untuk saat ini '.url('/').' sedang dalam perbaikan. Silahkan akses dalam beberapa waktu kedepan!</p>
+            <p>Terima kasih,  '.get_option('site_title').'</p>
         </div>
     </article>
     </body>
