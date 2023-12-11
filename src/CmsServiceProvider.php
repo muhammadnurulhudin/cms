@@ -13,7 +13,6 @@ class CmsServiceProvider extends ServiceProvider
         require_once(__DIR__ . "/Inc/Helpers.php");
         $this->mergeConfigFrom(__DIR__ . "/config/modules.php", "modules");
         load_default_module();
-        $this->loadRoutesFrom(__DIR__ . "/routes/web.php");
         $this->loadViewsFrom(__DIR__ . "/views", "views");
         $this->loadMigrationsFrom(__DIR__ . "/database/migrations");
         $this->publishes([
@@ -25,7 +24,7 @@ class CmsServiceProvider extends ServiceProvider
             require_once(resource_path('views/template/' . template() . '/modules.php'));
             isset($config) ? config(['modules.config'=>$config]) : exit('No Config Found! Please define minimal  $config["web_type"] = "Your Web Type"; at path '.resource_path('views/template/' . template() . '/modules.php'));
         }
-
+        $this->loadRoutesFrom(__DIR__ . "/routes/web.php");
 
 
     }

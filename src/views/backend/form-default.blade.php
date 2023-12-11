@@ -96,10 +96,10 @@
             @if(get_module_info('post_type') == 'lasyanan')
                @include('admin.hasil-skm')
             @else
-               @include('admin.looping-data')
+               @include('views::backend.looping-data')
             @endif
          @else
-            @include('admin.list-menu')
+            @include('views::backend.list-menu')
          @endif
 
       @endif

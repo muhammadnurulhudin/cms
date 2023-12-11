@@ -8,7 +8,7 @@ use Illuminate\Session\Events\SessionStarted;
 use Str;
 use Udiko\Cms\Models\Post;
 use Udiko\Cms\Models\Group;
-
+use Cache;
 class FrontendController extends Controller
 {
     function __construct()
@@ -18,6 +18,11 @@ class FrontendController extends Controller
             if(!request()->user() && get_option('site_maintenance')=='Y'){
                 return undermaintenance();
             }
+            if(!Cache::has('post')){
+            regenerate_cache();
+            recache_option();
+        }
+
             return $next($request);
         });
     }

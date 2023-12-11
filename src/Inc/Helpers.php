@@ -874,7 +874,7 @@ if (!function_exists(function: 'keyword_search')) {
     function keyword_search($keywords){
 
     $link = null;
-    foreach(explode(',',trim($keywords)) as $row){
+    foreach(explode(',',trim($keywords??' ')) as $row){
       $link .= '<a href="'.url('search/'.Str::slug($row)).'">#'.$row.'</a>, ';
     }
     return rtrim(trim($link),',');
