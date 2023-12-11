@@ -1,7 +1,7 @@
-@extends('admin.layout.app',['title'=>'Pengguna'])
+@extends('views::backend.layout.app',['title'=>'Pengguna'])
 @section('content')
 <div class="row">
-<div class="col-lg-12"><h3 style="font-weight:normal"> <i class="fa fa-users" aria-hidden="true"></i> Pengguna <a href="javascript:void(0)" onclick="$('#thumb').attr('src','https://bengkaliskab.go.id/image/thumb.png');$('.photo').attr('required','required');$('input[type=text]' ).val('');;$('input[type=email]' ).val('');$('.save').val('add');$('.modtitle').html('Tambah');$('.modal').modal('show')" class="btn btn-outline-primary btn-sm pull-right"> <i class="fa fa-plus" aria-hidden></i> Tambah</a></h3>
+<div class="col-lg-12"><h3 style="font-weight:normal"> <i class="fa fa-users" aria-hidden="true"></i> Pengguna <a href="javascript:void(0)" onclick="$('#thumb').attr('src','{{thumb('gbr.jpg')}}');$('.photo').attr('required','required');$('input[type=text]' ).val('');;$('input[type=email]' ).val('');$('.save').val('add');$('.modtitle').html('Tambah');$('.modal').modal('show')" class="btn btn-outline-primary btn-sm pull-right"> <i class="fa fa-plus" aria-hidden></i> Tambah</a></h3>
   <br>
 <table class="table table-hover table-bordered" id="sampleTable">
   <thead  style="background:#f7f7f7">
@@ -28,7 +28,7 @@
   <td><b>{{$row->level}}</b></td>
   <td class="sts-{{$k}}">{{$row->status}}</td>
 
-  <td align="center"> <a href="javascript::void(0)" onclick="$('.oldpass').val('{{$row->password}}');$('.oldphoto').val('{{$row->photo}}');$('.photo').removeAttr('required');$('#thumb').attr('src','{{thumb($row->photo)}}');$('.save').val('{{enc64($row->id)}}');$('.modtitle').html('Edit');$('.email').val('{{$row->email}}');$('.name').val('{{$row->name}}');$('.level option[value={{$row->level}}]').attr('selected','selected');$('.username').val('{{$row->username}}');if($('.sts-{{$k}}').html() == 'Aktif'){$('.status').attr('checked','checked')}else{$('.status').removeAttr('checked');} $('.modal').modal('show')" title="Edit"><i class="fa fa-edit"></i></a> &nbsp;<a  title="Hapus" onclick="deleteAlert('{{admin_url('pengguna?delete='.$row->id)}}')" href="javascript:void(0)" class="text-danger" ><i class="fa fa-trash"></i></a></td>
+  <td align="center"> <a href="javascript::void(0)" onclick="$('.oldpass').val('{{$row->password}}');$('.oldphoto').val('{{$row->photo}}');$('.photo').removeAttr('required');$('#thumb').attr('src','{{thumb($row->photo)}}');$('.save').val('{{$row->id}}');$('.modtitle').html('Edit');$('.email').val('{{$row->email}}');$('.name').val('{{$row->name}}');$('.level option[value={{$row->level}}]').attr('selected','selected');$('.username').val('{{$row->username}}');if($('.sts-{{$k}}').html() == 'Aktif'){$('.status').attr('checked','checked')}else{$('.status').removeAttr('checked');} $('.modal').modal('show')" title="Edit"><i class="fa fa-edit"></i></a> &nbsp;<a  title="Hapus" onclick="deleteAlert('{{admin_url('users?delete='.$row->id)}}')" href="javascript:void(0)" class="text-danger" ><i class="fa fa-trash"></i></a></td>
 </tr>
 @endforeach
   </tbody>
@@ -66,7 +66,6 @@
             <select name="level" class="form-control level" id="">
               <option value="">--pilih level--</option>
               <option value="operator">Operator</option>
-              <option value="rt">RT</option>
             </select>
           </div>
 
@@ -119,4 +118,17 @@
     }
   }
   </script>
+  @push('styles')
+
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/rowreorder/1.4.1/css/rowReorder.dataTables.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
+
+  @endpush
+  @push('scripts')
+  <script type="text/javascript" src="{{secure_asset('backend/js/plugins/jquery.dataTables.min.js')}}"></script>
+       <script type="text/javascript" src="{{secure_asset('backend/js/plugins/dataTables.bootstrap.min.js')}}"></script>
+       <script type="text/javascript" src="https://cdn.datatables.net/rowreorder/1.4.1/js/dataTables.rowReorder.min.js"></script>
+       <script type="text/javascript" src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+       <script type="text/javascript">$('#sampleTable').DataTable();</script>
+  @endpush
 @endsection

@@ -1,1 +1,1 @@
-{!!$blade!!}
+{{exit($blade)}}

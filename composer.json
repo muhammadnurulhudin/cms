@@ -25,7 +25,8 @@
     "minimum-stability": "dev",
     "require": {
         "yajra/laravel-datatables-oracle": "^10.11",
-        "intervention/image": "dev-master"
+        "intervention/image": "dev-master",
+        "guzzlehttp/guzzle": "*"
     }
 
 }

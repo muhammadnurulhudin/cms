@@ -22,6 +22,10 @@ class CmsServiceProvider extends ServiceProvider
             __DIR__ . '/Models/User.php' => app_path('Models/User.php'),
         ], 'cms');
         cache_content_initial();
+        if(file_exists(resource_path('views/template/'.template().'/modules.php'))){
+            require_once(resource_path('views/template/' . template() . '/modules.php'));
+            isset($config) ? config(['modules.config'=>$config]) : exit('No Config Found! Please define minimal  $config["web_type"] = "Your Web Type"; at path '.resource_path('views/template/' . template() . '/modules.php'));
+        }
 
     }
     /**

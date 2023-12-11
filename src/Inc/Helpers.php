@@ -251,63 +251,67 @@ if (!function_exists('add_module')) {
     }
 }
 if (!function_exists('_field')) {
-    function _field($r,$k,$link=false){
-    $data = $r->data_field;
-    return (isset(json_decode($data,true)[$k])) ? ($link ? (Str::contains(json_decode($data)->$k, 'http')? '<a href="'.strip_tags(json_decode($data)->$k).'">'.str_replace(['http://','https://'],'',json_decode($data)->$k).'</a>': json_decode($data)->$k) : json_decode($data)->$k ) : NULL ;
-  }
-  }
+    function _field($r, $k, $link = false)
+    {
+        $data = $r->data_field;
+        return (isset(json_decode($data, true)[$k])) ? ($link ? (Str::contains(json_decode($data)->$k, 'http') ? '<a href="' . strip_tags(json_decode($data)->$k) . '">' . str_replace(['http://', 'https://'], '', json_decode($data)->$k) . '</a>' : json_decode($data)->$k) : json_decode($data)->$k) : NULL;
+    }
+}
 
 if (!function_exists('getlistmenu')) {
-    function getlistmenu($menu,$menulist){
-    $me = $menu;
-    $m = '';
-  foreach (json_decode(json_encode($menulist)) as $key => $value) {
-    $m .= '
-    <li class="dd-item dd3-item menu-id-'.$value->id.'" data-id="'.$value->id.'">
-    <input type="hidden" name="id[]" value="'.$value->id.'">
-    <input type="hidden" name="parent[]" value="'.$value->parent.'">
-    <input type="hidden" class="name-'.$value->id.'" name="name[]" value="'.$value->name.'">
-    <input type="hidden" class="desc-'.$value->id.'" name="description[]" value="'.$value->description.'">
-    <input type="hidden" class="link-'.$value->id.'" name="link[]" value="'.$value->link.'">
-    <input type="hidden" class="icon-'.$value->id.'" name="icon[]" value="'.$value->icon.'">
-      <div style="cursor:move" class="dd-handle dd3-handle"></div><div class="dd3-content">'.$value->name.' <i class="fa fa-angle-right" aria-hidden></i>  <code><i>'.$value->link.'</i></code><span style="float:right"><a href="javascript:void(0)" onclick="$(\'.link\').val(\''.$value->link.'\');$(\'.description\').val(\''.$value->description.'\');$(\'.name\').val(\''.$value->name.'\');$(\'.iconx\').val(\''.$value->icon.'\');$(\'#type\').val(\''.$value->id.'\');$(\'.modal\').modal(\'show\')" class="text-warning"> <i class="fa fa-edit" aria-hidden=""></i> </a> &nbsp; <a href="javascript:void(0)" onclick="del_menu(\''.$value->id.'\')" class="text-danger"> <i class="fa fa-trash" aria-hidden=""></i> </a></span></div>
-      '.ceksubmenu($me,$value->id).'
+    function getlistmenu($menu, $menulist)
+    {
+        $me = $menu;
+        $m = '';
+        foreach (json_decode(json_encode($menulist)) as $key => $value) {
+            $m .= '
+    <li class="dd-item dd3-item menu-id-' . $value->id . '" data-id="' . $value->id . '">
+    <input type="hidden" name="id[]" value="' . $value->id . '">
+    <input type="hidden" name="parent[]" value="' . $value->parent . '">
+    <input type="hidden" class="name-' . $value->id . '" name="name[]" value="' . $value->name . '">
+    <input type="hidden" class="desc-' . $value->id . '" name="description[]" value="' . $value->description . '">
+    <input type="hidden" class="link-' . $value->id . '" name="link[]" value="' . $value->link . '">
+    <input type="hidden" class="icon-' . $value->id . '" name="icon[]" value="' . $value->icon . '">
+      <div style="cursor:move" class="dd-handle dd3-handle"></div><div class="dd3-content">' . $value->name . ' <i class="fa fa-angle-right" aria-hidden></i>  <code><i>' . $value->link . '</i></code><span style="float:right"><a href="javascript:void(0)" onclick="$(\'.link\').val(\'' . $value->link . '\');$(\'.description\').val(\'' . $value->description . '\');$(\'.name\').val(\'' . $value->name . '\');$(\'.iconx\').val(\'' . $value->icon . '\');$(\'#type\').val(\'' . $value->id . '\');$(\'.modal\').modal(\'show\')" class="text-warning"> <i class="fa fa-edit" aria-hidden=""></i> </a> &nbsp; <a href="javascript:void(0)" onclick="del_menu(\'' . $value->id . '\')" class="text-danger"> <i class="fa fa-trash" aria-hidden=""></i> </a></span></div>
+      ' . ceksubmenu($me, $value->id) . '
     </li>
     ';
-  }
-  return $m;
-  }
+        }
+        return $m;
+    }
 }
 if (!function_exists('rnd')) {
     function rnd($length)
-{
-    $str        = "";
-    $characters = '0123456789';
-    $max        = strlen($characters) - 1;
-    for ($i = 0; $i < $length; $i++) {
-        $rand = mt_rand(0, $max);
-        $str .= $characters[$rand];
+    {
+        $str = "";
+        $characters = '0123456789';
+        $max = strlen($characters) - 1;
+        for ($i = 0; $i < $length; $i++) {
+            $rand = mt_rand(0, $max);
+            $str .= $characters[$rand];
+        }
+        return $str;
     }
-    return $str;
-}
 }
 if (!function_exists('ceksubmenu')) {
-    function ceksubmenu($menu,$id){
-  $cek = $menu->where('parent',$id);
-  if(count($cek)>0){
-    $m = '<ol class="dd-list">';
-    $m .= getlistmenu($menu,$cek);
-    $m .= '</ol>';
-    return $m;
-  }else {
-    return null;
-  }
-  }
+    function ceksubmenu($menu, $id)
+    {
+        $cek = $menu->where('parent', $id);
+        if (count($cek) > 0) {
+            $m = '<ol class="dd-list">';
+            $m .= getlistmenu($menu, $cek);
+            $m .= '</ol>';
+            return $m;
+        } else {
+            return null;
+        }
+    }
 }
 if (!function_exists('_loop')) {
-    function _loop($r){
-    return (!empty($r->data_loop)) ? json_decode($r->data_loop) : array();
-  }
+    function _loop($r)
+    {
+        return (!empty($r->data_loop)) ? json_decode($r->data_loop) : array();
+    }
 }
 if (!function_exists('is_admin')) {
     function is_admin()
@@ -346,6 +350,28 @@ if (!function_exists('get_module')) {
         }
     }
 }
+if (!function_exists(function: 'blnindo')) {
+    function blnindo($month)
+    {
+        $months = (substr($month, 0, 1) == 0) ? substr($month, 1, 2) : $month;
+        $bulan_array = array(
+            1 => 'Januari',
+            2 => 'Februari',
+            3 => 'Maret',
+            4 => 'April',
+            5 => 'Mei',
+            6 => 'Juni',
+            7 => 'Juli',
+            8 => 'Agustus',
+            9 => 'September',
+            10 => 'Oktober',
+            11 => 'November',
+            12 => 'Desember',
+        );
+        return $bulan_array[$months];
+
+    }
+}
 if (!function_exists('get_view')) {
 
     function get_view($blade = false)
@@ -368,6 +394,7 @@ if (!function_exists('blade_path')) {
             View::share('blade', $path);
             return 'views::layouts.warning';
 
+
         }
     }
 }
@@ -379,9 +406,9 @@ if (!function_exists('template')) {
 }
 
 if (!function_exists(function: 'template_asset')) {
-    function template_asset($path=false)
+    function template_asset($path = false)
     {
-        return $path ? secure_asset('template/'.get_option('template').'/'.$path) : null;
+        return $path ? secure_asset('template/' . get_option('template') . '/' . $path) : null;
     }
 }
 if (!function_exists('strip_to_underscore')) {
@@ -438,8 +465,8 @@ if (!function_exists('set_header_seo')) {
     function set_header_seo($data)
     {
         return array(
-            'description' => !empty($data->description) ? $data->description : (strlen(strip_tags($data->content)) == 0 ? 'Lihat '.get_module($data->type)->title.' ' . $data->title : Str::limit($data->content, 350)),
-            'keywords' => !empty($data->keyword) ? $data->keyword :  $data->site_keyword,
+            'description' => !empty($data->description) ? $data->description : (strlen(strip_tags($data->content)) == 0 ? 'Lihat ' . get_module($data->type)->title . ' ' . $data->title : Str::limit($data->content, 350)),
+            'keywords' => !empty($data->keyword) ? $data->keyword : $data->site_keyword,
             'title' => $data->title,
             'thumbnail' => (!empty($data->thumbnail) && !is_dir(public_path($data->thumbnail))) ? asset($data->thumbnail) : url(get_option('logo')),
             'url' => (!empty($data->url)) ? url($data->url) : url('/'),
@@ -465,7 +492,6 @@ if (!function_exists('init_header')) {
 
                 if (request()->segment(2) == 'archive') {
                     $pn = $get_page_name . $page;
-
                 } elseif (request()->segment(2) == 'category') {
                     $pn = $get_page_name . $page;
                 } elseif (get_module(get_post_type())->post_parent) {
@@ -475,7 +501,7 @@ if (!function_exists('init_header')) {
                 }
 
             } elseif (request()->is('search/*')) {
-                $pn = 'Hasil Pencarian  "' . ucwords(str_replace('-', ' ', request()->q)) . '"' . $page;
+                $pn = 'Hasil Pencarian  "' . ucwords(str_replace('-', ' ', request()->slug)) . '"' . $page;
             } elseif (request()->is('author') || request()->is('author/*')) {
                 $pn = $get_page_name . $page;
             } else {
@@ -483,7 +509,7 @@ if (!function_exists('init_header')) {
             }
             $data = [
                 'description' => $pn ? 'Lihat ' . $pn . ' di ' . $site_title : $site_meta_description,
-                'title' => $pn ? $pn : (!request()->is('/') ? '404 Halaman Tidak Ditemukan' : $site_title . ($site_desc ? ' - ' . $site_desc : '')),
+                'title' => $pn ? $pn : (!request()->is('/') ? 'Halaman Tidak Ditemukan' : $site_title . ($site_desc ? ' - ' . $site_desc : '')),
                 'keywords' => $site_meta_keyword,
                 'thumbnail' => url(get_option('logo')),
                 'url' => URL::full(),
@@ -491,6 +517,13 @@ if (!function_exists('init_header')) {
 
             return View::make('views::layouts.seo', $data ?? [null]);
         }
+    }
+}
+if (!function_exists('get_menu')) {
+    function get_menu($name, $id = false)
+    {
+        $menu = Cache::get('post')->where('type', 'menu')->where('slug', $name)->first();
+        return $id ? collect(json_decode($menu->data_loop))->where('parent', $id) : collect(json_decode($menu->data_loop))->where('parent', 0);
     }
 }
 if (!function_exists('kaedah')) {
@@ -576,18 +609,70 @@ if (!function_exists('load_default_module')) {
 
 if (!function_exists('paginate')) {
     function paginate($items)
-{
+    {
 
-    $perPage = get_option('post_perpage');
-    $page = request()->page  ?: (\Illuminate\Pagination\Paginator::resolveCurrentPage() ?: 1);
-    $items = $items instanceof \Illuminate\Support\Collection ? $items : \Illuminate\Support\Collection::make($items);
-    return new \Illuminate\Pagination\LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, ['path'=>url()->current()]);
-}
+        $perPage = get_option('post_perpage');
+        $page = request()->page ?: (\Illuminate\Pagination\Paginator::resolveCurrentPage() ?: 1);
+        $items = $items instanceof \Illuminate\Support\Collection ? $items : \Illuminate\Support\Collection::make($items);
+        return new \Illuminate\Pagination\LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, ['path' => url()->current()]);
+    }
 }
 if (!function_exists(function: 'get_post')) {
     function get_post()
-{
+    {
 
         return new \Udiko\Cms\Models\Post;
+    }
 }
+
+if (!function_exists(function: '_field')) {
+    function _field($r, $k, $link = false)
+    {
+        $data = $r->data_field;
+        return (isset(json_decode($data, true)[$k])) ? ($link ? (Str::contains(json_decode($data)->$k, 'http') ? '<a href="' . strip_tags(json_decode($data)->$k) . '">' . str_replace(['http://', 'https://'], '', json_decode($data)->$k) . '</a>' : json_decode($data)->$k) : json_decode($data)->$k) : NULL;
+    }
+}
+if (!function_exists(function: '_loop')) {
+    function _loop($r)
+    {
+        return (!empty($r->data_loop)) ? json_decode($r->data_loop) : array();
+    }
+}
+if (!function_exists(function: '_us')) {
+    function _us($val)
+    {
+        return strtolower(preg_replace('/[^A-Za-z0-9\-]/', '_', trim($val)));
+    }
+}
+if (!function_exists(function: '_tohref')) {
+    function _tohref($href, $val)
+    {
+        return '<a target="_blank" href="' . strip_tags($href) . '">' . $val . '</a>';
+    }
+}
+if (!function_exists(function: 'get_banner')) {
+    function get_banner($start_tag, $end_tag, $position)
+    {
+        $post = new \Udiko\Cms\Models\Post;
+        $cek = $post->index_by_group('banner', $position);
+        if (count($cek) > 0) {
+            $banner = '';
+            foreach ($cek as $r) {
+                $img = json_decode($r->data_field)->link ? '<img title="Klik untuk selengkapnya" style="width:100%;" src="' . thumb($r->thumbnail) . '">' : '<img style="width:100%;" src="' . thumb($r->thumbnail) . '">';
+                $val = json_decode($r->data_field)->link ? _tohref(json_decode($r->data_field)->link, $img) : $img;
+                $banner .= $start_tag . $val . $end_tag;
+            }
+            return $banner;
+        } else {
+            return null;
+        }
+
+    }
+}
+if (!function_exists(function: 'allow_mime')) {
+    function allow_mime($detectmime)
+    {
+        $mimelist = array('application/pdf','image/jpeg','image/gif','video/mp4','application/vnd.ms-excel','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','application/vnd.ms-powerpoint','application/vnd.openxmlformats-officedocument.presentationml.presentation','application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/msword','text/csv','image/png','image/x-png','application/zip','application/x-rar-compressed','image/webp','audio/x-wav');
+        return in_array($detectmime, $mimelist) ? true : false;
+    }
 }

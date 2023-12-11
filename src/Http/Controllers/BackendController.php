@@ -5,12 +5,16 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Udiko\Cms\Models\Post;
 use Udiko\Cms\Models\Group;
+use Udiko\Cms\Models\User;
+use Udiko\Cms\Models\Comment;
+use Udiko\Cms\Models\Option;
 use Illuminate\Http\Request;
 use Str;
 use File;
 use Image;
+use Illuminate\Support\Facades\Http;
 use Yajra\DataTables\Facades\DataTables;
-
+use ZipArchive;
 class BackendController extends Controller
 {
     public function __construct()
@@ -83,9 +87,9 @@ class BackendController extends Controller
             return back()->with('success', 'Success');
 
         }
-        $data = Comment::withwherehas('post')->orderBy('created_at', 'desc')->get();
+        $data['comments'] = Comment::withwherehas('post')->orderBy('created_at', 'desc')->get();
 
-        return view('admin.comments', compact('data'));
+        return view('views::backend.comments', $data);
     }
     public function summer_file_upload(Request $req)
     {
@@ -105,9 +109,10 @@ class BackendController extends Controller
             $path = public_path($dir);
             $type = allowed_ext($req->file->getClientOriginalExtension());
             $mime = $req->file->getClientMimeType();
+            abort_if(!allow_mime($mime), '403');
             $namewithextension = $req->file->getClientOriginalName(); //Name with extension 'filename.jpg'
             $fname = explode('.', $namewithextension)[0];
-            $name = Str::slug(now() . ' ' . $fname) . '.' . $req->file->extension();
+            $name = Str::slug(now() . ' ' . $fname) . '.' . $req->file->getClientOriginalExtension();
             if ($type):
                 if ($type == 'image'):
                     $img = Image::make($files);
@@ -340,7 +345,7 @@ class BackendController extends Controller
     {
         if ($ids) {
             if (Group::whereHas('post')->whereId($ids)->count() > 0)
-               return back()->with('danger', 'Kategori Sedang Digunakan');
+                return back()->with('danger', 'Kategori Sedang Digunakan');
             $find = Group::findOrFail($ids);
             $find->delete();
             regenerate_cache();
@@ -360,7 +365,7 @@ class BackendController extends Controller
                     'description' => $req->description,
                     'name' => $req->name,
                     'sort' => $req->sort,
-                    'url' => get_post_type() . '/kategori/' . Str::slug($req->name),
+                    'url' => get_post_type() . '/category/' . Str::slug($req->name),
                     'slug' => Str::slug($req->name),
                 ]);
                 regenerate_cache();
@@ -372,7 +377,7 @@ class BackendController extends Controller
                     'name' => $req->name,
                     'sort' => $req->sort,
                     'slug' => Str::slug($req->name),
-                    'url' => get_post_type() . '/kategori/' . Str::slug($req->name),
+                    'url' => get_post_type() . '/category/' . Str::slug($req->name),
 
                 ]);
                 regenerate_cache();
@@ -408,9 +413,10 @@ class BackendController extends Controller
             $path = public_path($dir);
             $namewithextension = Str::random(5) . '-' . $req->getClientOriginalName();
             $mime = $req->getClientMimeType();
+            abort_if(!allow_mime($mime), '403');
             $fname = explode('.', $namewithextension)[0];
-            $name = Str::slug(now() . ' ' . $fname) . '.' . $req->extension();
-            if (allowed_ext($req->extension()) == 'image') {
+            $name = Str::slug(now() . ' ' . $fname) . '.' . $req->getClientOriginalExtension();
+            if (allowed_ext($req->getClientOriginalExtension()) == 'image') {
                 $img = Image::make($req);
                 $img->resize(null, 1200, function ($constraint) {
                     $constraint->aspectRatio();
@@ -424,7 +430,7 @@ class BackendController extends Controller
             return $dir . $name;
         }
     }
-//end handler upload file
+    //end handler upload file
     function dirpost($post_date)
     {
         $y = date('Y', strtotime($post_date));
@@ -445,7 +451,9 @@ class BackendController extends Controller
         }
         $dir = 'upload/' . $post->type . '/' . $this->dirpost($post->created_at)->y . '/' . $post->id . '/';
         if ($files = $req->file('thumbnail')) {
-            if (allowed_ext($files->extension())) {
+            $mime = $files->getClientMimeType();
+            abort_if(!allow_mime($mime), '403');
+            if (allowed_ext($files->getClientOriginalExtension())) {
 
                 if ($req->save != 'add' && get_module_info('thumbnail') && !empty($post->thumbnail) && file_exists(public_path($post->thumbnail))) {
                     unlink(public_path($post->thumbnail));
@@ -453,10 +461,9 @@ class BackendController extends Controller
                 $img = Image::make($files);
                 $path = public_path($dir);
                 $namewithextension = $files->getClientOriginalName(); //Name with extension 'filename.jpg'
-                $mime = $files->getClientMimeType();
 
                 $fname = explode('.', $namewithextension)[0];
-                $name = Str::slug(now() . ' ' . $fname) . '.' . $files->extension();
+                $name = Str::slug(now() . ' ' . $fname) . '.' . $files->getClientOriginalExtension();
                 $img->resize(null, 1200, function ($constraint) {
                     $constraint->aspectRatio();
                     $constraint->upsize();
@@ -489,7 +496,7 @@ class BackendController extends Controller
         return DataTables::of($data)
             ->addIndexColumn()
             ->addColumn('title', function ($row) {
-                if (get_post_type()== 'media') {
+                if (get_post_type() == 'media') {
                     if (!file_exists(public_path($row->url)) || !$row->post_parent()->exists()) {
                         $row->delete();
                     }
@@ -573,4 +580,166 @@ class BackendController extends Controller
             return '<i class="fa fa-tags"></i> ' . rtrim($res, ', ');
         return $res;
     }
+
+    function setting(Request $request, Option $option)
+    {
+        $data['web_type'] = config('modules.config.web_type');
+        $data['optionable'] = array_merge(config('modules.config.optionable') ?? [], [
+            'Telepon',
+            'Whatsapp',
+            'Fax',
+            'Email',
+            'Latitude',
+            'Longitude',
+            'Facebook',
+            'Youtube',
+            'Instagram']);
+        $data['site_attribute'] = array(
+            ['Alamat Situs Web', 'site_url', 'text'],
+            ['Nama Situs Web', 'site_title', 'text'],
+            ['Deskripsi Situs Web', 'site_description', 'text'],
+            ['SEO Meta Keyword', 'site_meta_keyword', 'text'],
+            ['SEO Meta Description', 'site_meta_description', 'text'],
+            ['Postingan Perhalaman', 'post_perpage', 'number'],
+            ['Logo', 'logo', 'file'],
+            ['Favicon', 'favicon', 'file'],
+        );
+
+        $data['security'] = array(['Block IP', '0.0.0.0,0.0.1.0,..,..'], ['Allow API Request', '0.0.0.0,0.0.1.0,..,..'], ['Fobidden Keyword', 'Judi Online, Gacor, xxx, other'], ['Time Limit Login', '1,2,3,4'], ['Time Limit Reload', '1,2,3,4,5'], ['Limit Duration', 'in miliscond eg: 10000 for 10 seconds']);
+
+        $data['home_page'] = Post::whereType('halaman')->whereMime('html')->select('id', 'title')->get();
+
+        if ($request->all()) {
+            if($value=$request->home_page){
+                Option::updateOrCreate(['name'=>'home_page'],['value' => $value]);
+            }
+            foreach ($data['optionable'] as $row) {
+                $key = _us($row);
+                if ($value = $request->$key) {
+                    $find = $option->where('name', _us($row))->first();
+                    $find ? $find->update(['value' => $value]) : $option->create(['name' => _us($row), 'value' => $value, 'autoload' => 1]);
+                }
+            }
+            foreach (array_merge($data['security'], [['Admin Path', ''], ['Site Maintenance', '']]) as $row) {
+                $key = _us($row[0]);
+                if ($value = $request->$key) {
+                    $find = $option->where('name', _us($row[0]))->first();
+                    $find ? $find->update(['value' => $value]) : $option->create(['name' => _us($row[0]), 'value' => $value, 'autoload' => 1]);
+                }
+            }
+            foreach ($data['site_attribute'] as $row) {
+                $key = $row[1];
+                if ($row[2] == 'file') {
+                    if ($value = $request->file($key)) {
+                        if (allow_mime($value->getClientMimeType()) && in_array($value->getClientOriginalExtension(), ['jpg', 'png'])) {
+                            $value->move(public_path('/'), $row[1] . '.' . $value->getClientOriginalExtension());
+                            $find = $option->where('name', $key)->first();
+                            $find ? $find->update(['value' => $row[1] . '.' . $value->getClientOriginalExtension()]) : $option->create(['name' => $key, 'value' => $row[1] . '.' . $value->getClientOriginalExtension(), 'autoload' => 1]);
+                        }
+                    }
+                } else {
+                    if ($value = $request->$key) {
+                        $find = $option->where('name', $key)->first();
+                        $find ? $find->update(['value' => $value]) : $option->create(['name' => $key, 'value' => $value, 'autoload' => 1]);
+                    }
+                }
+            }
+            recache_option();
+            return back()->with('success', 'Berhasil disimpan');
+        }
+        // return back()->with('success', 'Pengaturan Berhasil Disimpan');
+        return view('views::backend.setting', $data);
+    }
+    function users(Request $request,User $user){
+        if($request->delete){
+            Post::where('user_id',$request->delete)->update(['user_id'=>1]);
+            $id=  $user->findOrFail($request->delete);
+            $id->delete();
+            return back()->with('success','Hapus Pengguna Sukses');
+        }
+        if($request->save){
+          if($request->save=='add'){
+            $data = array(
+              'name'=>$request->name ?? '',
+              'email'=>$request->email ?? '',
+              'slug'=> Str::slug($request->name),
+              'level'=> $request->level,
+              'url'=> 'author/'.Str::slug($request->name),
+              'username'=>$request->username ?? '',
+              'password'=> bcrypt($request->password) ?? '',
+              'status'=>$request->status ?? 'Nonaktif'
+            );
+            $id = User::create($data);
+            if($files = $request->file('photo')){
+                if(allow_mime($files->getClientMimeType()) && in_array($files->getClientOriginalExtension(),['jpg','png'])){
+                    $fname = $id->id.'.'.$files->getClientOriginalExtension();
+                    $files->move(public_path('users'),$fname);
+                };
+                }
+            $id->update(['photo'=> isset($fname)? 'users/'.$fname : 'user.png']);
+            return back()->with('success','Tambah Pengguna Sukses');
+          }else {
+                $find = User::findOrFail($request->save);
+                $find->update([
+                    'level' => $request->level,
+                    'status' => $request->status ?? 'Nonaktif',
+                    'name' => $request->name, 'profile_url' => 'author/' . Str::slug($request->name),
+                    'slug' => Str::slug($request->name),
+                    'email' => $request->email,
+                    'username' => $request->username,
+                    'password' => bcrypt($request->password) ?? $find->password]);
+                    if($files = $request->file('photo')){
+                        if(allow_mime($files->getClientMimeType()) && in_array($files->getClientOriginalExtension(),['jpg','png'])){
+                            $fname = $find->id.'.'.$files->getClientOriginalExtension();
+                            $files->move(public_path('users'),$fname);
+                        };
+                        }
+                $find->update(['photo'=> isset($fname) ? 'users/'.$fname : $find->photo]);
+            return back()->with('success','Edit Pengguna Sukses');
+
+          }
+        }
+        $data['users'] = $user->where('id','<>', $request->user()->id)->get();
+        return view('views::backend.users', $data);
+    }
+function template(Request $request){
+
+        $apitemplate = Http::get('http://larawebcms.test/apitemplate')->json();
+        $data['templates'] = $request->type && $request->type!='semua'  ? collect(json_decode(json_encode($apitemplate)))->where('type',$request->type) : collect(json_decode(json_encode($apitemplate)));
+
+        if($request->select){
+            $selected_template =  collect($data['templates'])->where('id',$request->select)->first();
+            if(!empty($selected_template)){
+              if($request->apply){
+                $filename = 'template.zip';
+                $tempImage = tempnam(sys_get_temp_dir(), $filename);
+                copy($selected_template->download, $tempImage);
+
+                $zip = new ZipArchive;
+                if ($zip->open($tempImage) === TRUE) {
+                // dd('berhasil');
+                    // if($zip->setPassword(get_option('passbackup'))):
+                    // if($zip->getFromName($resfile['type'].".lw"))
+                    $zip->extractTo(resource_path('views/template/'.$selected_template->path));
+                    $zip->close();
+                if(File::moveDirectory(resource_path('views/template/'.$selected_template->path.'/asset'), public_path('template/'.$selected_template->path))){
+                  Option::whereName('template')->update(['value'=>$selected_template->path]);
+                  recache_option();
+                  return back()->with('success','Template Berhasil Diterapkan');
+                }else{
+                  return back()->with('danger','Template Gagal Diterapkan');
+
+                }
+
+                }
+
+              }
+                $data['detail'] = $selected_template;
+            }
+            else{
+              return redirect(url()->current())->with('warning','Tempate Tidak Ditemukan');
+            }
+          }
+        return view('views::backend.template', $data);
+}
 }

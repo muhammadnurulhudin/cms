@@ -5,94 +5,145 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Udiko\Cms\Http\Controllers\VisitorController;
 use Illuminate\Session\Events\SessionStarted;
+use Str;
+use Udiko\Cms\Models\Post;
+use Udiko\Cms\Models\Group;
+
 class FrontendController extends Controller
 {
-    function __construct(){
-        $this->middleware(function ($request, $next){
-        VisitorController::visitor_counter();
-        return $next($request);
-      });
+    function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            $this->counted = VisitorController::visitor_counter();
+            return $next($request);
+        });
     }
     public function home(Request $req)
     {
-        return view('views::layouts.master');
+        return get_option('home_page')=='default' ? view('views::layouts.master') :  view('custom_view.'.get_option('home_page'));
     }
-    public function index()
+    public function index(Post $post)
     {
-        config(['modules.page_name' => 'Daftar ' . get_module(get_post_type())->title]);
-        return view('views::layouts.master');
+        $modul = get_module(get_post_type());
+        config(['modules.page_name' => 'Daftar ' . $modul->title]);
+        $data = array('index' => $post->index(get_post_type(), true), 'title' => $modul->title,'icon'=>$modul->icon);
+        return view('views::layouts.master', $data);
     }
-    public function detail(Request $request, \Udiko\Cms\Models\Post $post, $slug = false)
+    public function detail(Request $request, Post $post, $slug = false)
     {
+        $modul= get_module(get_post_type());
         $detail = $post->detail(get_post_type(), $slug);
-        if (empty($detail))
-            abort('404');
+        abort_if(empty($detail), '404');
         if ($detail->slug != $slug)
             return redirect($detail->url);
-
-
+        if ($this->counted)
+            $detail->increment('visited');
         config(['modules.data' => $detail]);
-        return view('views::layouts.master');
-
-
-    }
-    public function group()
-    {
-
-        return get_post_type('view_path');
-
-    }
-    public function search(Request $request, $slug = null)
-    {
-
-        if ($slug) {
-            return $slug;
+        if ($detail->mime == 'html') {
+            return view('custom_view.' . $detail->id, compact('detail'));
         }
-        abort('404');
+        $data = array('icon'=>$modul->icon,'title'=>$modul->title,'post_type'=>$modul->name, 'detail'=>$detail,'history'=> $post->history($detail->id, $detail->created_at));
+        return view('views::layouts.master',$data);
+
 
     }
-
-    public function post_parent(Request $request, $slug = null)
+    public function group(Group $group, Post $post, $slug = null)
     {
+        $modul = get_module(get_post_type());
 
-        return $slug ?? 'Pilih .';
+        $group = $group->whereType(get_post_type())->whereStatus(1)->where('slug', 'like', $slug . '%')->first();
+        abort_if(empty($group), '404');
+        if ($group->slug != $slug)
+            return redirect($group->url);
+        config(['modules.page_name' => 'Daftar ' . $modul->title . ' dikategori ' . $group->name]);
+        $data = array(
+            'index' => paginate($post->index_by_group(get_post_type(), $slug)), 'title' => $group->name,'icon'=>$modul->icon,'post_type'=>$modul->name);
+        return view('views::layouts.master', $data);
+    }
+    public function search(Request $request, Post $post, $slug = null)
+    {
+        if ($request->keyword)
+            return redirect('search/' . Str::slug($request->keyword));
+        abort_if(empty($slug), '404');
+        $query = str_replace('-', ' ', Str::slug($slug));
+        $type = collect(get_module())->where('public', true)->where('detail', true)->where('index', true)->pluck('name');
+        $index = $post->with('user', 'group')->wherein('type', $type)->where('title', 'like', '%' . $query . '%')
+            ->orwhere('keyword', 'like', '%' . $query . '%')
+            ->orwhere('description', 'like', '%' . $query . '%')
+            ->where('status', 'publish')
+            ->whereNotIn('type', ['halaman'])
+            ->latest('created_at')
+            ->paginate(get_option('post_perpage'));
+        $data = array(
+            'title' => ucwords($query),
+            'icon' => 'fa-search',
+            'index' => $index
+        );
+        return view('views::layouts.master', $data);
+    }
+
+    public function post_parent(Post $post, $slug = null)
+    {
+        $modul = get_module(get_post_type());
+        abort_if(empty($slug), '404');
+        $post_parent = $post->where('type', $modul->post_parent[1])
+            ->where('post_name', 'like', $slug . '%')->select('post_id', 'post_title', 'post_name')->first();
+        abort_if(empty($post_parent), '404');
+        if ($post_parent->slug != $slug)
+            return redirect(get_post_type() . '/' . request()->segment(2) . '/' . $post_parent->slug);
+        $title = $post_parent->post_title;
+        $post_name = $modul->title;
+        config(['modules.page_name' => 'Daftar ' . $post_name . ' ' . $title]);
+        $index = $post->index_child($post_parent->id, get_post_type());
+        $data = array('index' => $index, 'title' => $post_name . ' ' . $title, 'icon' => $modul->icon, 'post_type' => get_post_type());
+        return view('views::layouts.master', $data);
 
     }
-    public function archive(Request $request, \Udiko\Cms\Models\Post $post, $year = null, $month = null, $date = null)
+    public function archive(Request $request, Post $post, $year = null, $month = null, $date = null)
     {
-        $valid = 1;
-        if (!$year && !$month && !$date)
-            return 'data archive 0';
-
-        if ($year && !$month && !$date)
+        if ($year && !$month && !$date) {
             if (is_year($year)) {
-                $data = $post->whereStatus('publish')->whereYear('created_at', $year)->paginate(10);
+                $periode = $year;
+                $data = $post->whereType(get_post_type())->whereStatus('publish')->whereYear('created_at', $year)->paginate(get_option('post_perpage'));
+
             } else {
                 return redirect(get_post_type());
 
             }
-        if ($year && $month && !$date)
+        } elseif ($year && $month && !$date) {
             if (is_year($year) && is_month($month)) {
-                $data = $post->whereStatus('publish')
+                $periode = blnindo($month) . ' ' . $year;
+                $data = $post->whereType(get_post_type())
+                    ->whereStatus('publish')
                     ->whereYear('created_at', $year)
                     ->whereMonth('created_at', $month)
-                    ->paginate(10);
+                    ->paginate(get_option('post_perpage'));
 
             } else {
                 return redirect(get_post_type());
 
             }
 
-        if ($year && $month && $date)
+        } elseif ($year && $month && $date) {
             if (is_year($year) && is_month($month) && is_day($date)) {
-                $data = $post->whereStatus('publish')
+                $periode = ((substr($date, 0, 1) == '0') ? substr($date, 1, 2) : $date) . ' ' . blnindo($month) . ' ' . $year;
+                $data = $post->whereType(get_post_type())->whereStatus('publish')
                     ->whereDate('created_at', $year . '-' . $month . '-' . $date)
-                    ->paginate(10);
+                    ->paginate(get_option('post_perpage'));
             } else {
                 return redirect(get_post_type());
             }
+        } else {
+            abort('404');
+        }
 
-        return $data;
+        $data = array(
+            'title' => 'Arsip ' . get_module(get_post_type())->title . ' ' . $periode,
+            'icon' => 'fa-archive',
+            'index' => $data
+        );
+        config(['modules.page_name' => $data['title']]);
+        return view('views::layouts.master', $data);
 
     }
 }

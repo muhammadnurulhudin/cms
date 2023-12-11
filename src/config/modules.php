@@ -28,7 +28,7 @@ return [
             'operator' => true,
             'public' => true,
             'history' => true,
-            'auto_query' => false,
+            'auto_query' => true,
             'auto_load' => true,
             'crud' => ['create','read','update','delete'],
             'active' => true,
@@ -531,10 +531,9 @@ return [
             'active' => true,
         ]
         ],
-        'setting_tab'=> [
-        [
-            'option_name'=> ''
-        ]
+        'config'=> [
+            'web_type'=> null,
+            'optionable'=> null,
         ],
         'used'=> array(),
         'current'=> null,

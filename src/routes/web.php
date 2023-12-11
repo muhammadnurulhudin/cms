@@ -63,9 +63,13 @@ if (request()->segment(1) == $admin_path && !in_array(request()->segment(2),['lo
                 }
             }
             Route::match(['get', 'post'], 'dashboard', 'dashboard');
-            Route::match(['get', 'post'],  '/comments', 'comments');
-            Route::match(['get', 'post'], admin_path() . '/unlink', 'delfile');
-            Route::match(['get', 'post'], admin_path() . '/visitor', 'visitor');
+            Route::match(['get', 'post'],  'comments', 'comments');
+            Route::match(['get', 'post'], 'unlink', 'delfile');
+            // Route::match(['get', 'post'], 'visitor', 'visitor');
+            Route::match(['get', 'post'], 'setting', 'setting');
+            Route::match(['get', 'post'], 'users', 'users');
+            Route::match(['get', 'post'], 'account', 'account');
+            Route::match(['get', 'post'], 'template', 'template');
         });
 }
 
@@ -79,37 +83,33 @@ elseif(request()->segment(1) && $modul = collect(get_module())->where('public',t
 
                 if ($modul->index && request()->is($modul->name)) {
                     $attr['view_type'] = 'index';
-                    $attr['view_path'] = $modul->name . 'index';
+                    $attr['view_path'] = $modul->name . '.index';
                     Route::get('/', 'index');
                 }
-                if ($modul->archive && (request()->is($modul->name.'/archive') || request()->is($modul->name.'/archive/*') || request()->is($modul->name.'/archive/*/*') || request()->is($modul->name.'/archive/*/*/*'))) {
+                if($modul->archive && (request()->is($modul->name.'/archive') || request()->is($modul->name.'/archive/*') || request()->is($modul->name.'/archive/*/*') || request()->is($modul->name.'/archive/*/*/*'))) {
                     $attr['view_type'] = 'archive';
                     $attr['view_path'] = $modul->name . '.archive';
-                    Route::get('/archive/{year?}/{month?}/{date?}', 'archive');
+                    Route::get('archive/{year?}/{month?}/{date?}', 'archive');
                 }
-                if ($modul->post_parent && (request()->is($modul->name.'/'.$modul->post_parent[1]) || request()->is($modul->name.'/'.$modul->post_parent[1].'/*'))) {
+               if ($modul->post_parent && (request()->is($modul->name.'/'.$modul->post_parent[1]) || request()->is($modul->name.'/'.$modul->post_parent[1].'/*'))) {
                     $attr['view_type'] = 'post_parent';
                     $attr['view_path'] = $modul->name . '.post_parent';
                     Route::get('/'.$modul->post_parent[1].'/{slug?}', 'post_parent');
                 }
-                if ($modul->detail && request()->is($modul->name.'/*')) {
+               if ($modul->detail && request()->is($modul->name.'/*')) {
                     $attr['view_type'] = 'detail';
                     $attr['view_path'] = $modul->name . '.detail';
                     Route::get('/{slug}', 'detail');
 
                 }
-                if ($modul->group && request()->is($modul->name.'/kategori/*')) {
+                if ($modul->group && request()->is($modul->name.'/category/*')) {
                     $attr['view_type'] = 'group';
                     $attr['view_path'] = $modul->name . '.group';
                     Route::get('/category/{slug}', 'group');
                 }
-
-
-
                 config([
                     'modules.current' => $attr
                 ]);
-
             });
     }
 
@@ -118,11 +118,12 @@ elseif(request()->segment(1) && $modul = collect(get_module())->where('public',t
     $attr['post_type'] = null;
     $attr['view_type'] = 'search';
     $attr['view_path'] = 'search';
-    Route::get('search/{slug?}', [\Udiko\Cms\Http\Controllers\FrontendController::class,'search'])->middleware('web');
-
     config([
         'modules.current' => $attr
     ]);
+    Route::match(['get','post'],'search/{slug?}', [\Udiko\Cms\Http\Controllers\FrontendController::class,'search'])->middleware('web');
+
+
 }elseif(request()->segment(1)){
 
         $attr['post_type'] = 'halaman';
@@ -142,3 +143,5 @@ elseif(request()->segment(1) && $modul = collect(get_module())->where('public',t
     Route::get('/', [\Udiko\Cms\Http\Controllers\FrontendController::class,'home'])->middleware('web');
 
 }
+
+
