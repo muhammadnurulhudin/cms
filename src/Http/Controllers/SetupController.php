@@ -1,20 +1,25 @@
 <?php
 namespace Udiko\Cms\Http\Controllers;
 
+use \Udiko\Cms\Models\User;
 use App\Http\Controllers\Controller;
 
 class SetupController extends Controller
 {
 
     public function index(){
-        return $this->generate_dummy_content();
+        if(db_connected()){
+            cache_content_initial();
+        //    $this->generate_dummy_content();
+        }
+
     }
     function generate_dummy_content()
     {
-        // foreach (array(['username' => 'admin', 'password' => bcrypt('admin'), 'email' => 'admin@email.com', 'status' => 1, 'slug' => 'admin-web', 'name' => 'Admin Web', 'url' => 'author/admin-web', 'photo' => null, 'level' => 'admin']) as $row) {
-        //     \Udiko\Cms\Models\User::create($row);
-        // }
-        $id = \Udiko\Cms\Models\User::first();
+        foreach (array(['username' => 'admin', 'password' => bcrypt('admin'), 'email' => 'admin@email.com', 'status' => 'Aktif', 'slug' => 'admin-web', 'name' => 'Admin Web', 'url' => 'author/admin-web', 'photo' => null, 'level' => 'admin']) as $row) {
+            User::create($row);
+        }
+        $id = User::first();
         $a = 0;
         while ($a <= 50):
             $id->post()->create(

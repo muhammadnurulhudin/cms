@@ -6,6 +6,7 @@ use Udiko\Cms\Models\Visitor;
 use Illuminate\Support\Facades\Http;
 use Session;
 
+
 class VisitorController extends Controller
 {
     static function visitor_counter()
@@ -14,7 +15,7 @@ class VisitorController extends Controller
             // Simpan data pengunjung ke dalam database
             Visitor::create([
                 'ip' => request()->ip(),
-                'ip_location' => 'none',
+                'ip_location' => get_ip_info(),
                 'browser' => self::browser(),
                 'session' => Session::getId(),
                 'device' => self::device(),

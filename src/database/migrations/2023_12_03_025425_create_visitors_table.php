@@ -11,19 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // protected $fillable = ['ip','date','time','os','browser','session','device','page','reference','last_activity','ip_location'];
         Schema::create('visitors', function (Blueprint $table) {
             $table->id();
-            $table->integer('last_activity');
-            $table->ipAddress('ip');
-            $table->json('ip_location');
-            $table->string('browser');
-            $table->string( 'session');
-            $table->string( 'device');
-            $table->string( 'os');
-            $table->string( 'page');
-            $table->date( 'date');
-            $table->string( 'reference');
+            $table->ipAddress('ip')->nullable();
+            $table->json('ip_location')->nullable();
+            $table->string('browser')->nullable();
+            $table->string( 'session')->nullable();
+            $table->string( 'device')->nullable();
+            $table->string( 'os')->nullable();
+            $table->string( 'page')->nullable();
+            $table->date( 'date')->default(date('Y-m-d'));
+            $table->string( 'reference')->nullable();
             $table->timestamps();
         });
     }

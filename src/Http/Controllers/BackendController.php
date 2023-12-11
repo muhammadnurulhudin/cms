@@ -62,7 +62,7 @@ class BackendController extends Controller
                 return Str::limit($row->reference, 70);
             })
             ->addColumn('page', function ($row) {
-                return Str::limit($row->page, 70);
+                return '<a href="'.$row->page.'">'.Str::limit($row->page, 70).'</a>';
             })
             ->rawColumns(['time', 'ip_location', 'reference', 'page'])
             ->toJson();

@@ -757,9 +757,12 @@ if (!function_exists(function: 'time_ago')) {
 }
 if (!function_exists(function: 'get_ip_info')) {
     function get_ip_info() {
-    $data = \Location::get(request()->ip());
-    return $data ? json_encode(['countryCode'=>Str::lower($data->countryCode),'country'=>$data->countryName,'city'=>$data->cityName,'region'=>$data->regionName]) : json_encode(array());
-
+        if (env('APP_ENV') == 'production') {
+            $data = \Stevebauman\Location\Facades\Location::get(request()->ip());
+            return $data ? json_encode(['countryCode' => Str::lower($data->countryCode), 'country' => $data->countryName, 'city' => $data->cityName, 'region' => $data->regionName]) : json_encode(array());
+        }else{
+            return NULL;
+        }
   }
 }
 if (!function_exists(function: 'make_custom_view')) {

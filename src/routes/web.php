@@ -1,8 +1,7 @@
 <?php
 $admin_path = admin_path();
 
-Route::get('setup', [Udiko\Cms\Http\Controllers\SetupController::class, 'index']);
-
+    Route::get('setup', [Udiko\Cms\Http\Controllers\SetupController::class, 'index']);
     Route::get($admin_path . '/login',[Udiko\Cms\Http\Controllers\Auth\LoginController::class, 'loginForm'])->middleware('web')->name('login');
     Route::get($admin_path . '/captcha',[Udiko\Cms\Http\Controllers\Auth\LoginController::class, 'captcha'])->middleware('web')->name('captcha');
 
