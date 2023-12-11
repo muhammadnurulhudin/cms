@@ -804,3 +804,116 @@ if (!function_exists(function: 'db_connected')) {
     }
 }
 }
+if (!function_exists(function: 'getTgl')) {
+    function getTgl($tanggal,$type){
+    $hari_array = array(
+      'Minggu',
+      'Senin',
+      'Selasa',
+      'Rabu',
+      'Kamis',
+      'Jumat',
+      'Sabtu'
+  );
+      $bulan = array (
+          1 =>   'Januari',
+          'Februari',
+          'Maret',
+          'April',
+          'Mei',
+          'Juni',
+          'Juli',
+          'Agustus',
+          'September',
+          'Oktober',
+          'November',
+          'Desember'
+      );
+      $pecahkan = explode('-', date('d-m-Y',strtotime($tanggal)));
+
+      // variabel pecahkan 0 = tanggal
+      // variabel pecahkan 1 = bulan
+      // variabel pecahkan 2 = tahun
+    return match(true){
+      $type == 'hari' => $hari_array[date('w', strtotime($tanggal))],
+      $type == 'tahun' => $pecahkan[2],
+      $type == 'bulan' => $bulan[ (int)$pecahkan[1] ],
+      $type == 'tanggal' => $pecahkan[0],
+      $type == 'tglbulan' => $pecahkan[0].' '.$bulan[ (int)$pecahkan[1] ] ,
+      default => NULL
+    };
+  }
+}
+
+if (!function_exists(function: 'get_group')) {
+    function get_group($array,$class=false){
+    $attr = $class ? 'class="'.$class.'"' : '';
+    $res = '';
+    foreach($array as $r){
+    $res .= '<a '.$attr.' href="'.url($r->group->url).'">'.$r->group->name.'</a>, ';
+  }
+  return rtrim($res,', ');
+  }
+}
+if (!function_exists(function: 'link_menu')) {
+    function link_menu($menu=false){
+    if($menu){
+    if(Str::contains($menu,'http')){
+      return $menu;
+    }
+    else {
+    return url($menu);
+    }
+  }else{
+    return null;
+  }
+  }
+}
+
+if (!function_exists(function: 'keyword_search')) {
+    function keyword_search($keywords){
+
+    $link = null;
+    foreach(explode(',',trim($keywords)) as $row){
+      $link .= '<a href="'.url('search/'.Str::slug($row)).'">#'.$row.'</a>, ';
+    }
+    return rtrim(trim($link),',');
+  }
+}
+if (!function_exists(function: 'share_button')) {
+    function share_button(){
+    return '<small>Bagikan ke :</small><div class="sharethis-inline-share-buttons"></div>';
+  }
+}
+if (!function_exists(function: 'undermaintenance')) {
+    function undermaintenance(){
+    echo '<!doctype html>
+    <html>
+    <head>
+    <title>Site Maintenance</title>
+    <meta charset="utf-8"/>
+    <meta name="robots" content="noindex"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      body { text-align: center; padding: 150px; }
+      h1 { font-size: 50px; }
+      body { font: 20px Helvetica, sans-serif; color: #333; }
+      article { display: block; text-align: left; width: 650px; margin: 0 auto; }
+      a { color: #dc8100; text-decoration: none; }
+      a:hover { color: #333; text-decoration: none; }
+    </style>
+    </head>
+    <body>
+    <article>
+        <h1>We&rsquo;ll be back soon!</h1>
+        <div>
+            <p>Mohon maaf untuk saat ini '.get_option('site_title').' sedang dalam perbaikan. Silahkan akses dalam beberapa waktu kedepan!</p>
+            <p>Terima kasih, Tim IT '.get_option('nama_organisasi').'</p>
+        </div>
+    </article>
+    </body>
+    </html>
+    ';
+  exit;
+  }
+}

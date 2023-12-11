@@ -39,3 +39,6 @@
   <meta name="HandheldFriendly" content="True">
   <link rel="apple-touch-startup-image" href="">
   <meta name="application-name" content="{{get_option('site_title')}}">
+  @if(get_post_type())
+  <script type="text/javascript" src="https://platform-api.sharethis.com/js/sharethis.js#property=63e08254b71a0b00126c118c&product=inline-share-buttons" async="async"></script>
+  @endif

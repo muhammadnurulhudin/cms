@@ -112,9 +112,11 @@ class Post extends Model
 
     function detail($type, $name = false)
     {
-        if ($name)
+        if ($name) {
             return Post::with('user', 'group', 'comments')->whereType($type)->whereStatus('publish')->where('slug', 'like', '%' . $name)->first() ?? Post::with('user', 'group', 'comments')->whereType($type)->whereStatus('publish')->where('slug', 'like', $name . '%')->first();
-        return $this->posts->where('type', $type)->first();
+        }else{
+        return $this->cachedpost()->where('type', $type)->first();
+    }
     }
 
     public function history($post_id, $currenttime)

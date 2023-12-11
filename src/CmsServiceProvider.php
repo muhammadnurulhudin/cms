@@ -1,6 +1,7 @@
 <?php
 namespace Udiko\Cms;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Auth;
 
 use Illuminate\Http\Request;
 use Config;
@@ -20,11 +21,12 @@ class CmsServiceProvider extends ServiceProvider
             __DIR__ . '/views/errors' => resource_path('views/errors'),
             __DIR__ . '/views/template' => resource_path('views/template')
         ], 'cms');
-
         if(file_exists(resource_path('views/template/'.template().'/modules.php'))){
             require_once(resource_path('views/template/' . template() . '/modules.php'));
             isset($config) ? config(['modules.config'=>$config]) : exit('No Config Found! Please define minimal  $config["web_type"] = "Your Web Type"; at path '.resource_path('views/template/' . template() . '/modules.php'));
         }
+
+
 
     }
     /**

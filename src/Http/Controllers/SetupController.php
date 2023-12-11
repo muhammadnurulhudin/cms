@@ -9,8 +9,9 @@ class SetupController extends Controller
 
     public function index(){
         if(db_connected()){
-            cache_content_initial();
-        //    $this->generate_dummy_content();
+            if($this->generate_dummy_content()){
+                cache_content_initial();
+            }
         }
 
     }
