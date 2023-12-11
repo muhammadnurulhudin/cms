@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('name');
             $table->longText('description')->nullable();
             $table->string('slug')->index();
-            $table->tinyInteger('sort')->default('0');
+            $table->string('sort',5)->nullable()->default('0');
             $table->timestamps();
 
         });
