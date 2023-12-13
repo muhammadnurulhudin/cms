@@ -44,8 +44,11 @@ class FrontendController extends Controller
         abort_if(empty($detail), '404');
         if ($detail->slug != $slug)
             return redirect($detail->url);
-        if ($this->counted)
+        if ($this->counted) {
             $detail->increment('visited');
+        }
+        if ($detail->redirect_to)
+            return redirect($detail->redirect_to);
         config(['modules.data' => $detail]);
         if ($detail->mime == 'html') {
             return view('custom_view.' . $detail->id, compact('detail'));
