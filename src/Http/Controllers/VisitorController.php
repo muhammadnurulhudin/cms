@@ -11,6 +11,8 @@ class VisitorController extends Controller
 {
     static function visitor_counter()
     {
+        if(db_connected()){
+
         if (!self::isDuplicateVisitor(Session::getId(), url()->current())) {
             // Simpan data pengunjung ke dalam database
             Visitor::create([
@@ -26,6 +28,7 @@ class VisitorController extends Controller
 
             return true;
         }
+    }
 
     }
     static function isDuplicateVisitor($session, $visitedPage)
