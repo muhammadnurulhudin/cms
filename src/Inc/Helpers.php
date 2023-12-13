@@ -643,7 +643,7 @@ if (!function_exists('kaedah')) {
 if (!function_exists('load_default_module')) {
     function load_default_module()
     {
-        use_module(['berita' => ['position' => 1], 'halaman' => ['custom_field' => false], 'agenda' => ['position' => 2], 'sambutan' => ['position' => 6], 'download' => ['position' => 3], 'menu' => true, 'banner' => ['auto_load' => true], 'foto' => ['position' => 4], 'video' => ['position' => 5], 'media' => ['position' => 7, 'icon' => 'fa-link']]);
+        use_module(['berita' => ['position' => 1], 'halaman' => ['custom_field' => false], 'agenda' => ['position' => 2], 'sambutan' => ['position' => 6], 'download' => ['position' => 3], 'menu' => true, 'banner' => ['auto_load' => true], 'foto' => ['position' => 4], 'media' => ['position' => 7, 'icon' => 'fa-link']]);
 
     }
 }
