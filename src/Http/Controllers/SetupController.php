@@ -54,7 +54,7 @@ class SetupController extends Controller
             ['name' => 'site_maintenance', 'value' => 0, 'autoload' => 1],
             ['name' => 'post_perpage', 'value' => 10, 'autoload' => 1],
             ['name' => 'site_title', 'value' => 'Your Website Official'],
-            ['name' => 'template', 'value' => 'default', 'autoload' => 1],
+            ['name' => 'template', 'value' => 'newzona', 'autoload' => 1],
             ['name' => 'admin_path', 'value' => 'admin', 'autoload' => 1],
             ['name' => 'logo', 'value' => 'logo.png', 'autoload' => 1],
             ['name' => 'favicon', 'value' => 'favicon.png', 'autoload' => 1],
