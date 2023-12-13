@@ -1,0 +1,181 @@
+$flaticon-font: "flaticon";
+
+@font-face {
+    font-family: $flaticon-font;
+    src: url("./flaticon.ttf?b55d81ccea641c1efe9a7544b7b07b8a") format("truetype"),
+url("./flaticon.woff?b55d81ccea641c1efe9a7544b7b07b8a") format("woff"),
+url("./flaticon.woff2?b55d81ccea641c1efe9a7544b7b07b8a") format("woff2"),
+url("./flaticon.eot?b55d81ccea641c1efe9a7544b7b07b8a#iefix") format("embedded-opentype"),
+url("./flaticon.svg?b55d81ccea641c1efe9a7544b7b07b8a#flaticon") format("svg");
+}
+
+i[class^="flaticon-"]:before, i[class*=" flaticon-"]:before {
+    font-family: flaticon !important;
+    font-style: normal;
+    font-weight: normal !important;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+$flaticon-map: (
+    "insurance": "\f101",
+    "house": "\f102",
+    "home": "\f103",
+    "technical-support": "\f104",
+    "mechanical-arm": "\f105",
+    "antivirus": "\f106",
+    "helmet": "\f107",
+    "chat-group": "\f108",
+    "sustainable": "\f109",
+    "solar-energy": "\f10a",
+    "industry": "\f10b",
+    "trophy": "\f10c",
+    "quality": "\f10d",
+    "integrated-system": "\f10e",
+    "strategy": "\f10f",
+    "leader": "\f110",
+    "costumer": "\f111",
+    "development": "\f112",
+    "computer": "\f113",
+    "finish-flag": "\f114",
+    "mail-send": "\f115",
+    "email": "\f116",
+    "brickwall": "\f117",
+    "helmet-1": "\f118",
+    "excavator": "\f119",
+    "building": "\f11a",
+    "house-1": "\f11b",
+    "construction-tools": "\f11c",
+    "truck": "\f11d",
+    "truck-1": "\f11e",
+    "crane": "\f11f",
+    "checklist": "\f120",
+    "worker": "\f121",
+    "engineer": "\f122",
+    "construction": "\f123",
+    "buildings": "\f124",
+    "home-repair": "\f125",
+    "property": "\f126",
+    "construction-1": "\f127",
+);
+
+.flaticon-insurance:before {
+    content: map-get($flaticon-map, "insurance");
+}
+.flaticon-house:before {
+    content: map-get($flaticon-map, "house");
+}
+.flaticon-home:before {
+    content: map-get($flaticon-map, "home");
+}
+.flaticon-technical-support:before {
+    content: map-get($flaticon-map, "technical-support");
+}
+.flaticon-mechanical-arm:before {
+    content: map-get($flaticon-map, "mechanical-arm");
+}
+.flaticon-antivirus:before {
+    content: map-get($flaticon-map, "antivirus");
+}
+.flaticon-helmet:before {
+    content: map-get($flaticon-map, "helmet");
+}
+.flaticon-chat-group:before {
+    content: map-get($flaticon-map, "chat-group");
+}
+.flaticon-sustainable:before {
+    content: map-get($flaticon-map, "sustainable");
+}
+.flaticon-solar-energy:before {
+    content: map-get($flaticon-map, "solar-energy");
+}
+.flaticon-industry:before {
+    content: map-get($flaticon-map, "industry");
+}
+.flaticon-trophy:before {
+    content: map-get($flaticon-map, "trophy");
+}
+.flaticon-quality:before {
+    content: map-get($flaticon-map, "quality");
+}
+.flaticon-integrated-system:before {
+    content: map-get($flaticon-map, "integrated-system");
+}
+.flaticon-strategy:before {
+    content: map-get($flaticon-map, "strategy");
+}
+.flaticon-leader:before {
+    content: map-get($flaticon-map, "leader");
+}
+.flaticon-costumer:before {
+    content: map-get($flaticon-map, "costumer");
+}
+.flaticon-development:before {
+    content: map-get($flaticon-map, "development");
+}
+.flaticon-computer:before {
+    content: map-get($flaticon-map, "computer");
+}
+.flaticon-finish-flag:before {
+    content: map-get($flaticon-map, "finish-flag");
+}
+.flaticon-mail-send:before {
+    content: map-get($flaticon-map, "mail-send");
+}
+.flaticon-email:before {
+    content: map-get($flaticon-map, "email");
+}
+.flaticon-brickwall:before {
+    content: map-get($flaticon-map, "brickwall");
+}
+.flaticon-helmet-1:before {
+    content: map-get($flaticon-map, "helmet-1");
+}
+.flaticon-excavator:before {
+    content: map-get($flaticon-map, "excavator");
+}
+.flaticon-building:before {
+    content: map-get($flaticon-map, "building");
+}
+.flaticon-house-1:before {
+    content: map-get($flaticon-map, "house-1");
+}
+.flaticon-construction-tools:before {
+    content: map-get($flaticon-map, "construction-tools");
+}
+.flaticon-truck:before {
+    content: map-get($flaticon-map, "truck");
+}
+.flaticon-truck-1:before {
+    content: map-get($flaticon-map, "truck-1");
+}
+.flaticon-crane:before {
+    content: map-get($flaticon-map, "crane");
+}
+.flaticon-checklist:before {
+    content: map-get($flaticon-map, "checklist");
+}
+.flaticon-worker:before {
+    content: map-get($flaticon-map, "worker");
+}
+.flaticon-engineer:before {
+    content: map-get($flaticon-map, "engineer");
+}
+.flaticon-construction:before {
+    content: map-get($flaticon-map, "construction");
+}
+.flaticon-buildings:before {
+    content: map-get($flaticon-map, "buildings");
+}
+.flaticon-home-repair:before {
+    content: map-get($flaticon-map, "home-repair");
+}
+.flaticon-property:before {
+    content: map-get($flaticon-map, "property");
+}
+.flaticon-construction-1:before {
+    content: map-get($flaticon-map, "construction-1");
+}

@@ -1,0 +1,137 @@
+@font-face {
+    font-family: "flaticon";
+    src: url("./flaticon.ttf?b55d81ccea641c1efe9a7544b7b07b8a") format("truetype"),
+url("./flaticon.woff?b55d81ccea641c1efe9a7544b7b07b8a") format("woff"),
+url("./flaticon.woff2?b55d81ccea641c1efe9a7544b7b07b8a") format("woff2"),
+url("./flaticon.eot?b55d81ccea641c1efe9a7544b7b07b8a#iefix") format("embedded-opentype"),
+url("./flaticon.svg?b55d81ccea641c1efe9a7544b7b07b8a#flaticon") format("svg");
+}
+
+i[class^="flaticon-"]:before, i[class*=" flaticon-"]:before {
+    font-family: flaticon !important;
+    font-style: normal;
+    font-weight: normal !important;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.flaticon-insurance:before {
+    content: "\f101";
+}
+.flaticon-house:before {
+    content: "\f102";
+}
+.flaticon-home:before {
+    content: "\f103";
+}
+.flaticon-technical-support:before {
+    content: "\f104";
+}
+.flaticon-mechanical-arm:before {
+    content: "\f105";
+}
+.flaticon-antivirus:before {
+    content: "\f106";
+}
+.flaticon-helmet:before {
+    content: "\f107";
+}
+.flaticon-chat-group:before {
+    content: "\f108";
+}
+.flaticon-sustainable:before {
+    content: "\f109";
+}
+.flaticon-solar-energy:before {
+    content: "\f10a";
+}
+.flaticon-industry:before {
+    content: "\f10b";
+}
+.flaticon-trophy:before {
+    content: "\f10c";
+}
+.flaticon-quality:before {
+    content: "\f10d";
+}
+.flaticon-integrated-system:before {
+    content: "\f10e";
+}
+.flaticon-strategy:before {
+    content: "\f10f";
+}
+.flaticon-leader:before {
+    content: "\f110";
+}
+.flaticon-costumer:before {
+    content: "\f111";
+}
+.flaticon-development:before {
+    content: "\f112";
+}
+.flaticon-computer:before {
+    content: "\f113";
+}
+.flaticon-finish-flag:before {
+    content: "\f114";
+}
+.flaticon-mail-send:before {
+    content: "\f115";
+}
+.flaticon-email:before {
+    content: "\f116";
+}
+.flaticon-brickwall:before {
+    content: "\f117";
+}
+.flaticon-helmet-1:before {
+    content: "\f118";
+}
+.flaticon-excavator:before {
+    content: "\f119";
+}
+.flaticon-building:before {
+    content: "\f11a";
+}
+.flaticon-house-1:before {
+    content: "\f11b";
+}
+.flaticon-construction-tools:before {
+    content: "\f11c";
+}
+.flaticon-truck:before {
+    content: "\f11d";
+}
+.flaticon-truck-1:before {
+    content: "\f11e";
+}
+.flaticon-crane:before {
+    content: "\f11f";
+}
+.flaticon-checklist:before {
+    content: "\f120";
+}
+.flaticon-worker:before {
+    content: "\f121";
+}
+.flaticon-engineer:before {
+    content: "\f122";
+}
+.flaticon-construction:before {
+    content: "\f123";
+}
+.flaticon-buildings:before {
+    content: "\f124";
+}
+.flaticon-home-repair:before {
+    content: "\f125";
+}
+.flaticon-property:before {
+    content: "\f126";
+}
+.flaticon-construction-1:before {
+    content: "\f127";
+}
