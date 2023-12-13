@@ -25,9 +25,7 @@ class CmsServiceProvider extends ServiceProvider
             isset($config) ? config(['modules.config'=>$config]) : exit('No Config Found! Please define minimal  $config["web_type"] = "Your Web Type"; at path '.resource_path('views/template/' . template() . '/modules.php'));
         }
         $this->loadRoutesFrom(__DIR__ . "/routes/web.php");
-        if(!db_connected()){
-            exit('No Database!');
-        }
+
 
 
     }
