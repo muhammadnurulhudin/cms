@@ -13,17 +13,16 @@ class SetupController extends Controller
                 cache_content_initial();
             }
         }
+        clear_route();
 
     }
     function generate_dummy_content()
     {
-        foreach (array(['username' => 'admin', 'password' => bcrypt('admin'), 'email' => 'admin@email.com', 'status' => 'Aktif', 'slug' => 'admin-web', 'name' => 'Admin Web', 'url' => 'author/admin-web', 'photo' => null, 'level' => 'admin']) as $row) {
-            User::create($row);
-        }
-        $id = User::first();
+        $data = array('username' => 'admin', 'password' => bcrypt('admin'), 'email' => 'admin@email.com', 'status' => 'Aktif', 'slug' => 'admin-web', 'name' => 'Admin Web', 'url' => 'author/admin-web', 'photo' => null, 'level' => 'admin');
+        $id = User::UpdateOrcreate(['username'=>'admin'],$data);
         $a = 0;
         while ($a <= 50):
-            $id->post()->create(
+            $id->post()->updateOrcreate(
                 [
                     'title' => $title = fake()->sentence,
                     'slug' => $slug = str()->slug($title),
@@ -38,7 +37,7 @@ class SetupController extends Controller
 
         endwhile;
         //create menu
-        $id->post()->create(
+        $id->post()->updateOrcreate(
             [
                 'title' => $title = 'Header',
                 'slug' => $slug = str()->slug($title),
@@ -82,5 +81,6 @@ class SetupController extends Controller
 
             \Udiko\Cms\Models\Option::updateOrCreate($row);
         }
+        return true;
     }
 }

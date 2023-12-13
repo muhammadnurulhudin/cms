@@ -131,6 +131,19 @@ if (!function_exists('allowed_ext')) {
         }
     }
 }
+if (!function_exists(function: 'clear_route')) {
+    function clear_route(){
+    $data = '';
+    $path = base_path('routes');
+    if(!is_dir($path)){
+      mkdir($path);
+    }
+    $file = $path.'/web.php';
+    $myfile = fopen($file, "w") or die("Unable to open file!");
+    fwrite($myfile, $data);
+    fclose($myfile);
+  }
+}
 if (!function_exists('cache_content_initial')) {
     function cache_content_initial()
     {
