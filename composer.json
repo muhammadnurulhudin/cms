@@ -25,9 +25,8 @@
     "minimum-stability": "stable",
     "require": {
         "yajra/laravel-datatables-oracle": "^10.11",
-        "intervention/image": "dev-master",
-        "guzzlehttp/guzzle": "*",
-        "stevebauman/location":"*"
+        "intervention/image": "^2.7",
+        "stevebauman/location":"^7.0"
     }
 
 }
