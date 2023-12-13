@@ -14,6 +14,7 @@ class FrontendController extends Controller
     function __construct()
     {
         $this->middleware(function ($request, $next) {
+
             $this->counted = VisitorController::visitor_counter();
             if(!request()->user() && get_option('site_maintenance')=='Y'){
                 return undermaintenance();
