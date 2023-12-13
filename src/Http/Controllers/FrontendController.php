@@ -65,7 +65,9 @@ class FrontendController extends Controller
             return redirect($group->url);
         config(['modules.page_name' => 'Daftar ' . $modul->title . ' dikategori ' . $group->name]);
         $data = array(
-            'index' => paginate($post->index_by_group(get_post_type(), $slug)), 'title' => $group->name,'icon'=>$modul->icon,'post_type'=>$modul->name);
+            'index' => paginate($post->index_by_group(get_post_type(), $slug)), 'title' => $group->name,
+            'icon'=>$modul->icon,
+            'post_type'=>$modul->name);
         return view('views::layouts.master', $data);
     }
     public function search(Request $request, Post $post, $slug = null)
@@ -75,7 +77,9 @@ class FrontendController extends Controller
         abort_if(empty($slug), '404');
         $query = str_replace('-', ' ', Str::slug($slug));
         $type = collect(get_module())->where('public', true)->where('detail', true)->where('index', true)->pluck('name');
-        $index = $post->with('user', 'group')->wherein('type', $type)->where('title', 'like', '%' . $query . '%')
+        $index = $post->with('user', 'group')
+            ->wherein('type', $type)
+            ->where('title', 'like', '%' . $query . '%')
             ->orwhere('keyword', 'like', '%' . $query . '%')
             ->orwhere('description', 'like', '%' . $query . '%')
             ->where('status', 'publish')

@@ -107,7 +107,7 @@ class Post extends Model
     }
     function index_child($id, $type = false)
     {
-        return $type ? $this->cachedpost()->where('parent', $id)->where('type', $type) : $this->cachedpost()->where('post_parent', $id);
+        return $type ? $this->cachedpost()->where('parent', $id)->where('type', $type) : $this->cachedpost()->where('parent', $id);
     }
 
     function detail($type, $name = false)

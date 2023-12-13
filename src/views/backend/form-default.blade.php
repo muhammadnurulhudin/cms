@@ -36,7 +36,7 @@
 
                }
                else{
-                  $par =  Udiko\Cms\Models\Post::wherePostType(get_module_info('post_parent')[1])->wherePostStatus('publish')->select('id','title')->get();
+                  $par =  Udiko\Cms\Models\Post::whereType(get_module_info('post_parent')[1])->whereStatus('publish')->select('id','title')->get();
 
             }
             }

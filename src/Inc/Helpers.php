@@ -149,9 +149,9 @@ if (!function_exists('underscore')) {
     }
 }
 if (!function_exists('get_module_info')) {
-    function get_module_info($val)
+    function get_module_info($val,$post_type = false)
     {
-        return $val ? (get_module(get_post_type())->$val ?? '') : '';
+        return $val ? (get_module($post_type ?$post_type : get_post_type() )->$val ?? '') : '';
     }
 }
 if (!function_exists('active_item')) {
