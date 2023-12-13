@@ -23,6 +23,7 @@ class VisitorController extends Controller
                 'device' => self::device(),
                 'os' => self::os(),
                 'page' => url()->current(),
+                'date' => date('Y-m-d'),
                 'reference' => request()->headers->get('referer') ?? '',
             ]);
 
