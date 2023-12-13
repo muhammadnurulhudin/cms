@@ -816,18 +816,18 @@ if (!function_exists(function: 'getTgl')) {
       'Sabtu'
   );
       $bulan = array (
-          1 =>   'Januari',
-          'Februari',
-          'Maret',
-          'April',
+          1 =>   'Jan',
+          'Feb',
+          'Mar',
+          'Apr',
           'Mei',
-          'Juni',
-          'Juli',
-          'Agustus',
-          'September',
-          'Oktober',
-          'November',
-          'Desember'
+          'Jun',
+          'Jul',
+          'Agu',
+          'Sep',
+          'Okt',
+          'Nov',
+          'Des'
       );
       $pecahkan = explode('-', date('d-m-Y',strtotime($tanggal)));
 
