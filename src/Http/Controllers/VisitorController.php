@@ -94,17 +94,5 @@ class VisitorController extends Controller
 
         return $deviceType;
     }
-    static function ipCountry($ip)
-    {
-        // Buat permintaan ke layanan ipapi
-        $response = Http::get("http://ipapi.co/" . $ip . "/json/");
 
-        // Ambil data dari respons JSON
-        $data = $response->json();
-
-        // Dapatkan kode negara dari data
-        return isset($data['country']) ? $data['country'] : 'Unknown';
-
-
-    }
 }
