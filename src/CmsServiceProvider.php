@@ -37,7 +37,7 @@ class CmsServiceProvider extends ServiceProvider
     {
         Config::set('auth.providers.users.model', 'Udiko\Cms\Models\User');
         if(env('PUBLIC_PATH')){
-            $this->app->usePublicPath(base_path().'/../'.env('PUBLIC_PATH'));
+            $this->app->usePublicPath(base_path().'/'.env('PUBLIC_PATH'));
         }
     }
 
