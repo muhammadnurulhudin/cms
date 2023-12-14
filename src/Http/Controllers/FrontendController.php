@@ -103,11 +103,11 @@ class FrontendController extends Controller
         $modul = get_module(get_post_type());
         abort_if(empty($slug), '404');
         $post_parent = $post->where('type', $modul->post_parent[1])
-            ->where('post_name', 'like', $slug . '%')->select('post_id', 'post_title', 'post_name')->first();
+            ->where('slug', 'like', $slug . '%')->select('id', 'title', 'slug')->first();
         abort_if(empty($post_parent), '404');
         if ($post_parent->slug != $slug)
             return redirect(get_post_type() . '/' . request()->segment(2) . '/' . $post_parent->slug);
-        $title = $post_parent->post_title;
+        $title = $post_parent->title;
         $post_name = $modul->title;
         config(['modules.page_name' => 'Daftar ' . $post_name . ' ' . $title]);
         $index = $post->index_child($post_parent->id, get_post_type());
