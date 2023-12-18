@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use Udiko\Cms\Models\Visitor;
 use Illuminate\Support\Facades\Http;
 use Session;
+use Carbon\Carbon;
 
 
 class VisitorController extends Controller
@@ -93,6 +94,39 @@ class VisitorController extends Controller
         }
 
         return $deviceType;
+    }
+
+    static function hitStats(){
+
+        $data = Visitor::select('created_at','session')->whereBetween('created_at', [Carbon::now()->subMonth()->startOfMonth(), Carbon::now()])->latest('created_at')->get();
+        $uniqueSessions = $data->groupBy('session')->map(function ($group) {
+            return $group->first();
+        });
+        $arra['online'] = $uniqueSessions->filter(function ($visitor) {
+            return Carbon::parse($visitor->created_at)->isAfter(now()->subMinutes(5));
+        })->count();
+
+        //Menghitung pengunjung hari ini
+        $arra['today']  = $data->filter(function ($visitor) {
+            return Carbon::parse($visitor->created_at)->isToday();
+        })->count();
+
+        //Menghitung pengunjung kemarin
+        $arra['yesterday']  = $data->filter(function ($visitor) {
+            return Carbon::parse($visitor->created_at)->isYesterday();
+        })->count();
+
+        //Menghitung pengunjung bulan ini
+        $arra['this_month']  = $data->filter(function ($visitor) {
+            return Carbon::parse($visitor->created_at)->isCurrentMonth();
+        })->count();
+
+        //Menghitung pengunjung bulan kemarin
+        $arra['last_month'] = $data->filter(function ($visitor) {
+            return Carbon::parse($visitor->created_at)->subMonth()->isCurrentMonth();
+        })->count();
+
+        return $arra;
     }
 
 }
