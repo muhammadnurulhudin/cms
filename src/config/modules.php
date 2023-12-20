@@ -237,7 +237,7 @@ return [
             'data_title' => 'Judul Halaman',
             'custom_column' => false,
             'post_parent' => false,
-            'custom_field' => array(['Catatan', 'text', 'required']),
+            'custom_field' => false,
             'looping' => 'Asset',
             'looping_data' => array(['Nama File', 'text'], ['File', 'file']),
             'looping_for' => 'Upload Asset',
