@@ -9,16 +9,21 @@ use Str;
 use Udiko\Cms\Models\Post;
 use Udiko\Cms\Models\Group;
 use Cache;
+use View;
+use Auth;
 class FrontendController extends Controller
 {
     function __construct()
     {
         $this->middleware(function ($request, $next) {
 
-            $this->counted = VisitorController::visitor_counter();
-            if(!request()->user() && get_option('site_maintenance')=='Y'){
+            if(!Auth::check() && get_option('site_maintenance')=='Y'){
                 return undermaintenance();
             }
+            $visitor = VisitorController::lastvisit();
+            $this->counted = VisitorController::visitor_counter($visitor);
+            View::share('visitor', VisitorController::hitStats($visitor));
+
             if(!Cache::has('post')){
             regenerate_cache();
             recache_option();
@@ -29,7 +34,7 @@ class FrontendController extends Controller
     }
     public function home(Request $req)
     {
-        return VisitorController::hitStats();
+
 
         return get_option('home_page')=='default' ? view('views::layouts.master') :  view('custom_view.'.get_option('home_page'));
     }
@@ -37,7 +42,12 @@ class FrontendController extends Controller
     {
         $modul = get_module(get_post_type());
         config(['modules.page_name' => 'Daftar ' . $modul->title]);
-        $data = array('index' => $post->index(get_post_type(), true), 'title' => $modul->title,'icon'=>$modul->icon);
+        $data = array(
+        'index' => $post->index(get_post_type(), true),
+        'title' => $modul->title,
+        'icon'=>$modul->icon,
+        'post_type'=>get_post_type()
+    );
         return view('views::layouts.master', $data);
     }
     public function detail(Request $request, Post $post, $slug = false)

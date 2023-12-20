@@ -131,7 +131,7 @@ if (!function_exists('allowed_ext')) {
         }
     }
 }
-if (!function_exists(function: 'clear_route')) {
+if (!function_exists( 'clear_route')) {
     function clear_route(){
     $data = '';
     $path = base_path('routes');
@@ -405,7 +405,7 @@ if (!function_exists('get_module')) {
         }
     }
 }
-if (!function_exists(function: 'blnindo')) {
+if (!function_exists( 'blnindo')) {
     function blnindo($month)
     {
         $months = (substr($month, 0, 1) == 0) ? substr($month, 1, 2) : $month;
@@ -460,7 +460,7 @@ if (!function_exists('template')) {
     }
 }
 
-if (!function_exists(function: 'template_asset')) {
+if (!function_exists( 'template_asset')) {
     function template_asset($path = false)
     {
         return $path ? secure_asset('template/' . get_option('template') . '/' . $path) : null;
@@ -672,7 +672,7 @@ if (!function_exists('paginate')) {
         return new \Illuminate\Pagination\LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, ['path' => url()->current()]);
     }
 }
-if (!function_exists(function: 'get_post')) {
+if (!function_exists('get_post')) {
     function get_post()
     {
 
@@ -680,38 +680,38 @@ if (!function_exists(function: 'get_post')) {
     }
 }
 
-if (!function_exists(function: '_field')) {
+if (!function_exists( '_field')) {
     function _field($r, $k, $link = false)
     {
         $data = $r->data_field;
         return (isset(json_decode($data, true)[$k])) ? ($link ? (Str::contains(json_decode($data)->$k, 'http') ? '<a href="' . strip_tags(json_decode($data)->$k) . '">' . str_replace(['http://', 'https://'], '', json_decode($data)->$k) . '</a>' : json_decode($data)->$k) : json_decode($data)->$k) : NULL;
     }
 }
-if (!function_exists(function: '_loop')) {
+if (!function_exists('_loop')) {
     function _loop($r)
     {
         return (!empty($r->data_loop)) ? json_decode($r->data_loop) : array();
     }
 }
-if (!function_exists(function: '_us')) {
+if (!function_exists( '_us')) {
     function _us($val)
     {
         return strtolower(preg_replace('/[^A-Za-z0-9\-]/', '_', trim($val)));
     }
 }
-if (!function_exists(function: 'admin_only')) {
+if (!function_exists('admin_only')) {
     function admin_only()
     {
         return request()->user()->level != 'admin' ? Redirect::to(admin_path().'/dashboard')->send()->with('danger', 'Akses Terbatas untuk administrator') : true;
     }
 }
-if (!function_exists(function: '_tohref')) {
+if (!function_exists( '_tohref')) {
     function _tohref($href, $val)
     {
         return '<a target="_blank" href="' . strip_tags($href) . '">' . $val . '</a>';
     }
 }
-if (!function_exists(function: 'get_banner')) {
+if (!function_exists( 'get_banner')) {
     function get_banner($start_tag, $end_tag, $position)
     {
         $post = new \Udiko\Cms\Models\Post;
@@ -730,7 +730,7 @@ if (!function_exists(function: 'get_banner')) {
 
     }
 }
-if (!function_exists(function: 'allow_mime')) {
+if (!function_exists( 'allow_mime')) {
     function allow_mime($detectmime)
     {
         $mimelist = array('application/pdf','image/jpeg','image/gif','video/mp4','application/vnd.ms-excel','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','application/vnd.ms-powerpoint','application/vnd.openxmlformats-officedocument.presentationml.presentation','application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/msword','text/csv','image/png','image/x-png','application/zip','application/x-rar-compressed','image/webp','audio/x-wav');
@@ -738,7 +738,7 @@ if (!function_exists(function: 'allow_mime')) {
     }
 }
 
-if (!function_exists(function: 'time_ago')) {
+if (!function_exists('time_ago')) {
     function time_ago($datetime, $full = false) {
     $now = new DateTime;
     $ago = new DateTime($datetime);
@@ -768,7 +768,7 @@ if (!function_exists(function: 'time_ago')) {
     return $string ? implode(', ', $string) . ' yang lalu' : 'Baru saja';
   }
 }
-if (!function_exists(function: 'get_ip_info')) {
+if (!function_exists( 'get_ip_info')) {
     function get_ip_info() {
         if (env('APP_ENV') == 'production') {
             $data = \Stevebauman\Location\Facades\Location::get(request()->ip());
@@ -778,7 +778,7 @@ if (!function_exists(function: 'get_ip_info')) {
         }
   }
 }
-if (!function_exists(function: 'make_custom_view')) {
+if (!function_exists( 'make_custom_view')) {
     function make_custom_view($id,$content){
     $data = $content;
     $path = resource_path('views/custom_view');
@@ -791,7 +791,7 @@ if (!function_exists(function: 'make_custom_view')) {
     fclose($myfile);
   }
 }
-if (!function_exists(function: 'get_custom_view')) {
+if (!function_exists( 'get_custom_view')) {
     function get_custom_view($id){
     if(!file_exists(resource_path('views/custom_view/'.$id.'.blade.php'))){
       file_put_contents(resource_path('views/custom_view/'.$id.'.blade.php'),'<html></html>');
@@ -807,7 +807,7 @@ if (!function_exists(function: 'get_custom_view')) {
   return $l;
   }
 }
-if (!function_exists(function: 'db_connected')) {
+if (!function_exists('db_connected')) {
     function db_connected(){
     try {
         \DB::connection()->getPDO();
@@ -817,7 +817,7 @@ if (!function_exists(function: 'db_connected')) {
     }
 }
 }
-if (!function_exists(function: 'getTgl')) {
+if (!function_exists( 'getTgl')) {
     function getTgl($tanggal,$type){
     $hari_array = array(
       'Minggu',
@@ -858,7 +858,7 @@ if (!function_exists(function: 'getTgl')) {
   }
 }
 
-if (!function_exists(function: 'get_group')) {
+if (!function_exists('get_group')) {
     function get_group($array,$class=false){
     $attr = $class ? 'class="'.$class.'"' : '';
     $res = '';
@@ -868,7 +868,7 @@ if (!function_exists(function: 'get_group')) {
   return rtrim($res,', ');
   }
 }
-if (!function_exists(function: 'link_menu')) {
+if (!function_exists('link_menu')) {
     function link_menu($menu=false){
     if($menu){
     if(Str::contains($menu,'http')){
@@ -883,7 +883,7 @@ if (!function_exists(function: 'link_menu')) {
   }
 }
 
-if (!function_exists(function: 'keyword_search')) {
+if (!function_exists('keyword_search')) {
     function keyword_search($keywords){
 
     $link = null;
@@ -893,12 +893,14 @@ if (!function_exists(function: 'keyword_search')) {
     return rtrim(trim($link),',');
   }
 }
-if (!function_exists(function: 'share_button')) {
+if (!function_exists( 'share_button')) {
     function share_button(){
     return '<small>Bagikan ke :</small><div class="sharethis-inline-share-buttons"></div>';
   }
 }
-if (!function_exists(function: 'undermaintenance')) {
+
+
+if (!function_exists( 'undermaintenance')) {
     function undermaintenance(){
     echo '<!doctype html>
     <html>

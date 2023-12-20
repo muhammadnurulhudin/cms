@@ -10,11 +10,11 @@ use Carbon\Carbon;
 
 class VisitorController extends Controller
 {
-    static function visitor_counter()
+    static function visitor_counter($data)
     {
         if(db_connected()){
 
-        if (!self::isDuplicateVisitor(Session::getId(), url()->current())) {
+        if (!self::isDuplicateVisitor(Session::getId(), url()->current(),$data)) {
             // Simpan data pengunjung ke dalam database
             Visitor::create([
                 'ip' => request()->ip(),
@@ -33,14 +33,9 @@ class VisitorController extends Controller
     }
 
     }
-    static function isDuplicateVisitor($session, $visitedPage)
+    static function isDuplicateVisitor($session, $visitedPage,$data)
     {
-        // return true;
-        // Cek apakah ada catatan pengunjung dengan IP dan halaman yang sama
-        return Visitor::where('session', $session)
-            ->where('page', $visitedPage)
-            ->where('created_at', '>=', now()->subMinutes(5))
-            ->exists();
+        return $data->where('session',$session)->where('page',$visitedPage)->where('created_at', '>', now()->subMinutes(5))->isNotEmpty();
     }
     static function browser()
     {
@@ -95,10 +90,10 @@ class VisitorController extends Controller
 
         return $deviceType;
     }
-
-    static function hitStats(){
-
-        $data = Visitor::select('created_at','session')->whereBetween('created_at', [Carbon::now()->subMonth()->startOfMonth(), Carbon::now()])->latest('created_at')->get();
+    static function lastvisit(){
+        return Visitor::select('created_at','session','page')->whereBetween('created_at', [Carbon::now()->subMonth()->startOfMonth(), Carbon::now()])->latest('created_at')->get();
+    }
+    static function hitStats($data){
         $uniqueSessions = $data->groupBy('session')->map(function ($group) {
             return $group->first();
         });
@@ -126,7 +121,7 @@ class VisitorController extends Controller
             return Carbon::parse($visitor->created_at)->subMonth()->isCurrentMonth();
         })->count();
 
-        return $arra;
+        return json_decode(json_encode($arra));
     }
 
 }
