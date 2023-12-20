@@ -88,7 +88,7 @@
 
 
 
-      @if((get_module_info('looping') && get_post_type() !='halaman') || (get_post_type() =='halaman' && $edit->mime_type=='html'))
+      @if(get_module_info('looping') || (get_post_type() =='halaman' && $edit->mime_type=='html'))
          <br>
          <h6 style="border-bottom:1px dashed #000;font-weight:normal"><b>{{get_module_info('looping')}}</b> <span class="text-muted pull-right">{{get_module_info('looping_for')}}</span> </h6>
 

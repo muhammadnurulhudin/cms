@@ -254,7 +254,7 @@ class BackendController extends Controller
                                 if (isset($as[$i])) {
                                     if ($y[1] == 'file') {
                                         $cf = $as[$i];
-                                        $h[$r] = (!is_string($cf)) ? $this->upload_file($cf, get_post_type(), dec64($id), $find->created_at) : $cf;
+                                        $h[$r] = (!is_string($cf)) ? $this->upload_file($cf, get_post_type(), $id, $find->created_at) : $cf;
                                     } else {
                                         $h[$r] = $as[$i];
                                     }
