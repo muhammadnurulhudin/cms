@@ -10,9 +10,6 @@
 <meta name="rating" content="general" />
 <meta name="spiders" content="all" />
 <meta name="robots" content="all" />
-<meta property="fb:app_id" content="" />
-<meta property="fb:pages" content="" />
-<meta name="facebook-domain-verification" content="" />
 <!-- meta fb og start -->
 <meta property="og:url" content="{{$url}}" />
 <meta property="og:type" content="article" />
@@ -39,6 +36,3 @@
   <meta name="HandheldFriendly" content="True">
   <link rel="apple-touch-startup-image" href="">
   <meta name="application-name" content="{{get_option('site_title')}}">
-  @if(get_post_type())
-  <script type="text/javascript" src="https://platform-api.sharethis.com/js/sharethis.js#property=63e08254b71a0b00126c118c&product=inline-share-buttons" async="async"></script>
-  @endif
