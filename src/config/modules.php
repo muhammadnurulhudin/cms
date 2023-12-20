@@ -296,7 +296,7 @@ return [
             'data_title' => 'Nama Banner',
             'custom_column' => false,
             'post_parent' => false,
-            'custom_field' => array(['Link', 'text', 'required']),
+            'custom_field' => array(['Link', 'text']),
             'looping' => false,
             'looping_data' => false,
             'looping_for' => 'Silahkan Masukkan Nama Menu',
