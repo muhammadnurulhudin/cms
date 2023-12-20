@@ -1,16 +1,16 @@
 <style>
     .share-button a img {
-        height: 40px;
-        padding: 10px
+        height: 20px;
+        padding-right: 30px;
+        margin-top:10px;
     }
 </style>
 <div class="share-button">
-    <a href="javascript:void(0)">
-        <img src="{{ asset('backend/images/print.svg') }}" alt="">
-    </a>
+    <small><b>Bagikan :</b></small><br>
+
     <a href="javascript:void(0)" onclick="copyToClipboard()">
-        <img src="{{ asset('backend/images/copy.svg') }}" alt="">
         <small class="alert-copied" style="display: none">Copied</small>
+        <img src="{{ asset('backend/images/copy.svg') }}" alt="">
     </a>
     <a title="Bagikan ke Facebook" href="https://www.facebook.com/sharer/sharer.php?u={{ url()->full() }}"
         target="_blank" rel="noopener noreferrer">
