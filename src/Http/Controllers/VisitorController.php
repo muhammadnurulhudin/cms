@@ -98,7 +98,7 @@ class VisitorController extends Controller
             return $group->first();
         });
         $arra['online'] = $uniqueSessions->filter(function ($visitor) {
-            return Carbon::parse($visitor->created_at)->isAfter(now()->subMinutes(2));
+            return Carbon::parse($visitor->created_at)->isAfter(now()->subMinutes(5));
         })->count();
 
         //Menghitung pengunjung hari ini
