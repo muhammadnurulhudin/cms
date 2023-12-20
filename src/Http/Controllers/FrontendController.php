@@ -34,8 +34,6 @@ class FrontendController extends Controller
     }
     public function home(Request $req)
     {
-
-
         return get_option('home_page')=='default' ? view('views::layouts.master') :  view('custom_view.'.get_option('home_page'));
     }
     public function index(Post $post)

@@ -895,7 +895,7 @@ if (!function_exists('keyword_search')) {
 }
 if (!function_exists( 'share_button')) {
     function share_button(){
-    return '<small>Bagikan ke :</small><div class="sharethis-inline-share-buttons"></div>';
+    return View::make('views::share.button');
   }
 }
 
