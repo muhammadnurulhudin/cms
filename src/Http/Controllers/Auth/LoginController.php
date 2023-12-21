@@ -5,7 +5,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Auth;
 use Str;
-
+use Session;
 class LoginController extends Controller
 {
 
@@ -13,23 +13,28 @@ class LoginController extends Controller
     {
         $this->middleware('guest')->except('logout');
     }
-    public function captcha()
-{
-    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    $captchaText = substr(str_shuffle($characters), 0, 5);
+    public function generateCaptcha()
+    {
+        $captcha = Str::random(6); // Ubah panjang sesuai kebutuhan Anda
+        Session::put('captcha', $captcha);
 
-    session()->forget('captcha');
-    session()->put('captcha', $captchaText);
+        $image = imagecreatetruecolor(120, 40);
+        $bgColor = imagecolorallocate($image, 255, 255, 255);
+        $textColor = imagecolorallocate($image, 0, 0, 0);
 
-    $image = imagecreate(100, 30);
-    $background_color = imagecolorallocate($image, 255, 255, 255);
-    $text_color = imagecolorallocate($image, 0, 0, 0);
+        imagefilledrectangle($image, 0, 0, 120, 40, $bgColor);
+        imagettftext($image, 20, 0, 10, 30, $textColor, public_path('backend/fonts/captcha.ttf'), $captcha);
 
-    imagestring($image, 5, 5,  5, $captchaText, $text_color,);
-    header('Content-Type: image/x-png');
-    imagepng($image);
-    imagedestroy($image);
-}
+        ob_start();
+        imagepng($image);
+        $captchaImage = ob_get_clean();
+        imagedestroy($image);
+        if(!request()->headers->get('referer') ){
+        // request()->session()->regenerateToken();
+        return redirect(admin_path());
+        }
+        return response($captchaImage)->header('Content-type', 'image/png');
+    }
     public function loginForm(Request $request)
     {
         return view('views::auth.login');
@@ -41,24 +46,19 @@ class LoginController extends Controller
         {
             $credentials = $request->validate([
                 'username' => 'required',
-                'password' => 'required',
+                'password' => 'required'
                 // 'captcha' => 'required|in:' . session('captcha'),
             ]);
+          if($request->captcha != session('captcha')){
+        return back()->with('error','Captcha Tidak Valid!');
+
+          }
             // unset($credentials['g-recaptcha-response']);
         if(Auth::attempt($credentials))
         {
             $request->session()->regenerate();
             if(Auth::user()->status == 'Aktif'){
            Auth::user()->update(['last_login_at'=>now(),'last_login_ip'=>request()->ip()]);
-            if(session()->has('urlback')){
-                return redirect(session('urlback'));
-
-            }else{
-
-                return redirect(admin_path());
-
-            }
-
             }
             else{
                 Auth::logout();
@@ -69,12 +69,6 @@ class LoginController extends Controller
         }
         $request->session()->regenerateToken();
         return back()->with('error','Akun tidak ditemukan!');
-
-        $back = url()->previous();
-        $current = url()->current();
-        if($back!=$current && Str::contains($back, admin_path()) ){
-            session(['urlback'=>$back]);
-        }
     }
     }
 

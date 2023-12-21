@@ -16,14 +16,13 @@ class FrontendController extends Controller
     function __construct()
     {
         $this->middleware(function ($request, $next) {
-
-            if(!Auth::check() && get_option('site_maintenance')=='Y'){
+            if(get_option('site_maintenance')=='Y')
+            if(!$request->user()){
                 return undermaintenance();
             }
             $visitor = VisitorController::lastvisit();
             $this->counted = VisitorController::visitor_counter($visitor);
             View::share('visitor', VisitorController::hitStats($visitor));
-
             if(!Cache::has('post')){
             regenerate_cache();
             recache_option();

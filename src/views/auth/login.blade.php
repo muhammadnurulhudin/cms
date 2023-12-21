@@ -51,7 +51,7 @@
                 <input id="password" placeholder="*****" type="password" class="form-control form-control-lg " name="password" required autocomplete="current-password" autofocus>
           </div>
           <div class="form-group">
-
+            <img src="{{admin_url('captcha?token='.time())}}" alt=""> <input type="text" name="captcha" placeholder="Masukkan Kode..." required  style="border:none;float:right;height: 40px;">
           </div>
 
           <div class="form-group btn-container">
