@@ -2,7 +2,7 @@
 namespace Udiko\Cms;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Cache\RateLimiter;
 use Illuminate\Http\Request;
 use Config;
 class CmsServiceProvider extends ServiceProvider
@@ -39,6 +39,12 @@ class CmsServiceProvider extends ServiceProvider
         if(env('PUBLIC_PATH')){
             $this->app->usePublicPath(base_path().'/'.env('PUBLIC_PATH'));
         }
+        $this->app->bind('customRateLimiter', function ($app) {
+            return new RateLimiter($app['cache']->driver('file'),$app['request'],'loginpage',get_option('time_limit_login') ?? 3,get_option('limit_duration') ?? 60);
+        });
+        $this->app->bind('customRateLimiter', function ($app) {
+            return new RateLimiter($app['cache']->driver('file'),$app['request'],md5(url()->full()),get_option('time_limit_reload') ?? 3,get_option('limit_duration') ?? 60);
+        });
     }
 
 

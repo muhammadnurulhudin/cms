@@ -3,6 +3,7 @@ namespace Udiko\Cms\Http\Controllers\Auth;
 use Udiko\Cms\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Cache\RateLimiter;
 use Auth;
 use Str;
 use Session;
@@ -37,17 +38,23 @@ class LoginController extends Controller
     }
     public function loginForm(Request $request)
     {
+
         return view('views::auth.login');
 
     }
-    public function loginSubmit(Request $request,User $user)
+    public function loginSubmit(Request $request,RateLimiter $limiter,User $user)
     {
+
+        if ($limiter->tooManyAttempts('loginpage', get_option('time_limit_login') ?? 3)) {
+            return abort(429);
+        }
+        $limit = get_option('limit_duration') ??  60;
+        $limiter->hit('loginpage', (int)$limit);
         if($request->username && $request->password)
         {
             $credentials = $request->validate([
                 'username' => 'required',
                 'password' => 'required'
-                // 'captcha' => 'required|in:' . session('captcha'),
             ]);
           if($request->captcha != session('captcha')){
         return back()->with('error','Captcha Tidak Valid!');

@@ -613,7 +613,15 @@ class BackendController extends Controller
             ['Favicon', 'favicon', 'file'],
         );
 
-        $data['security'] = array(['Block IP', '0.0.0.0,0.0.1.0,..,..'], ['Allow API Request', '0.0.0.0,0.0.1.0,..,..'], ['Fobidden Keyword', 'Judi Online, Gacor, xxx, other'], ['Time Limit Login', '1,2,3,4'], ['Time Limit Reload', '1,2,3,4,5'], ['Limit Duration', 'in miliscond eg: 10000 for 10 seconds']);
+        $data['security'] = array(
+
+            ['Block IP', '0.0.0.0,0.0.1.0,..,..'],
+            ['Allow API Request', '0.0.0.0,0.0.1.0,..,..'],
+            ['Forbidden Keyword', 'Judi Online, Gacor, xxx, other'],
+            ['Forbidden Redirect', 'Eg: https://yourpage.url or other'],
+            ['Time Limit Login', '1,2,3,4'],
+            ['Time Limit Reload', '1,2,3,4,5'],
+            ['Limit Duration', 'in miliscond eg: 10000 for 10 seconds']);
 
         $data['home_page'] = Post::whereType('halaman')->whereMime('html')->select('id', 'title')->get();
 

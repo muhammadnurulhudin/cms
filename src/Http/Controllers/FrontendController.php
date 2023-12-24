@@ -10,12 +10,12 @@ use Udiko\Cms\Models\Post;
 use Udiko\Cms\Models\Group;
 use Cache;
 use View;
-use Auth;
+use Illuminate\Cache\RateLimiter;
 class FrontendController extends Controller
 {
-    function __construct()
+    function __construct(RateLimiter $limiter)
     {
-        $this->middleware(function ($request, $next) {
+        $this->middleware(function ($request, $next) use($limiter){
             if(get_option('site_maintenance')=='Y')
             if(!$request->user()){
                 return undermaintenance();
@@ -27,7 +27,17 @@ class FrontendController extends Controller
             regenerate_cache();
             recache_option();
         }
+        if ($limiter->tooManyAttempts(md5(url()->full()), get_option('time_limit_reload') ?? 3)) {
+           abort(429);
+        }
+        $limit = get_option('limit_duration') ??  60;
+        $limiter->hit(md5(url()->full()), (int)$limit);
 
+        if(str()->contains(url()->full(),explode(",",trim(get_option('forbidden_keyword'))))){
+                if($redirect = get_option('forbidden_redirect'))
+                    return redirect($redirect);
+                    abort(403);
+        }
             return $next($request);
         });
     }
