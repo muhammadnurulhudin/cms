@@ -11,55 +11,67 @@ use Udiko\Cms\Models\Group;
 use Cache;
 use View;
 use Illuminate\Cache\RateLimiter;
+
 class FrontendController extends Controller
 {
     function __construct(RateLimiter $limiter)
     {
-        $this->middleware(function ($request, $next) use($limiter){
-            if(get_option('site_maintenance')=='Y')
-            if(!$request->user()){
-                return undermaintenance();
-            }
+        $this->middleware(function ($request, $next) use ($limiter) {
+            if (get_option('site_maintenance') == 'Y')
+                if (!$request->user()) {
+                    return undermaintenance();
+                }
             $visitor = VisitorController::lastvisit();
             $this->counted = VisitorController::visitor_counter($visitor);
             View::share('visitor', VisitorController::hitStats($visitor));
-            if(!Cache::has('post')){
-            regenerate_cache();
-            recache_option();
-        }
-        if ($limiter->tooManyAttempts(md5(url()->full()), get_option('time_limit_reload') ?? 3)) {
-           abort(429);
-        }
-        $limit = get_option('limit_duration') ??  60;
-        $limiter->hit(md5(url()->full()), (int)$limit);
+            if (!Cache::has('post')) {
+                regenerate_cache();
+                recache_option();
+            }
+            if ($limiter->tooManyAttempts(md5(url()->full()), get_option('time_limit_reload') ?? 3)) {
+                abort(429);
+            }
+            $limit = get_option('limit_duration') ?? 60;
+            $limiter->hit(md5(url()->full()), (int) $limit);
 
-        if(str()->contains(url()->full(),explode(",",trim(get_option('forbidden_keyword'))))){
-                if($redirect = get_option('forbidden_redirect'))
+            if (str()->contains(url()->full(), explode(",", str_replace(" ","",get_option('forbidden_keyword')??'')))) {
+                if ($redirect = get_option('forbidden_redirect'))
                     return redirect($redirect);
-                    abort(403);
-        }
+                abort(403);
+            }
+
+            if(get_option('block_ip') && in_array($request->ip(),explode(",",get_option('block_ip')))){
+                abort(403);
+            }
             return $next($request);
         });
     }
     public function home(Request $req)
     {
-        return get_option('home_page')=='default' ? view('views::layouts.master') :  view('custom_view.'.get_option('home_page'));
+        return get_option('home_page') == 'default' ? view('views::layouts.master') : view('custom_view.' . get_option('home_page'));
+    }
+
+    public function api(Request $req, Post $post, $id=null){
+        if($id){
+            return $post->with('user')->findOrFail($id);
+        }
+        return $post->index(get_post_type(), true);
     }
     public function index(Post $post)
     {
         $modul = get_module(get_post_type());
         config(['modules.page_name' => 'Daftar ' . $modul->title]);
         $data = array(
-        'index' => $post->index(get_post_type(), true),
-        'title' => $modul->title,
-        'icon'=>$modul->icon,
-        'post_type'=>get_post_type()
-    );
+            'index' => $post->index(get_post_type(), true),
+            'title' => $modul->title,
+            'icon' => $modul->icon,
+            'post_type' => get_post_type()
+        );
         return view('views::layouts.master', $data);
     }
     public function detail(Request $request, Post $post, $slug = false)
     {
-        $modul= get_module(get_post_type());
+        $modul = get_module(get_post_type());
         $detail = $post->detail(get_post_type(), $slug);
         abort_if(empty($detail), '404');
         if ($detail->slug != $slug)
@@ -73,8 +85,8 @@ class FrontendController extends Controller
         if ($detail->mime == 'html') {
             return view('custom_view.' . $detail->id, compact('detail'));
         }
-        $data = array('icon'=>$modul->icon,'title'=>$modul->title,'post_type'=>$modul->name, 'detail'=>$detail,'history'=> $post->history($detail->id, $detail->created_at));
-        return view('views::layouts.master',$data);
+        $data = array('icon' => $modul->icon, 'title' => $modul->title, 'post_type' => $modul->name, 'detail' => $detail, 'history' => $post->history($detail->id, $detail->created_at));
+        return view('views::layouts.master', $data);
 
 
     }
@@ -89,8 +101,8 @@ class FrontendController extends Controller
         config(['modules.page_name' => 'Daftar ' . $modul->title . ' dikategori ' . $group->name]);
         $data = array(
             'index' => paginate($post->index_by_group(get_post_type(), $slug)), 'title' => $group->name,
-            'icon'=>$modul->icon,
-            'post_type'=>$modul->name);
+            'icon' => $modul->icon,
+            'post_type' => $modul->name);
         return view('views::layouts.master', $data);
     }
     public function search(Request $request, Post $post, $slug = null)

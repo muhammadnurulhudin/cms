@@ -91,6 +91,10 @@ if (request()->segment(1) == $admin_path && !in_array(request()->segment(2), ['l
                     $attr['view_path'] = $modul->name . '.post_parent';
                     Route::get('/' . $modul->post_parent[1] . '/{slug?}', 'post_parent');
                 }
+                if ($modul->api) {
+                    Route::get('api-list', 'api');
+                    Route::get('api-detail/{id}', 'api');
+                }
                 if ($modul->detail && request()->is($modul->name . '/*')) {
                     $attr['view_type'] = 'detail';
                     $attr['view_path'] = $modul->name . '.detail';
@@ -102,6 +106,7 @@ if (request()->segment(1) == $admin_path && !in_array(request()->segment(2), ['l
                     $attr['view_path'] = $modul->name . '.group';
                     Route::get('/category/{slug}', 'group');
                 }
+
                 config([
                     'modules.current' => $attr
                 ]);
