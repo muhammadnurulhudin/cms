@@ -52,10 +52,20 @@ class FrontendController extends Controller
     }
 
     public function api(Request $req, Post $post, $id=null){
+        abort_if(get_option('allow_api_request') && !in_array($req->ip(), explode(",", get_option('allow_api_request'))),403);
         if($id){
-            return $post->with('user')->findOrFail($id);
+            return response([
+                'code'=>200,
+                'status'=>"success",
+                'data'=>$post->with('user')->whereStatus('publish')->findOrFail($id)
+            ],200);
         }
-        return $post->index(get_post_type(), true);
+        return response([
+            'code'=>200,
+            'status'=>"success",
+            'data'=>$post->index(get_post_type(), true)
+        ],200);
+
     }
     public function index(Post $post)
     {

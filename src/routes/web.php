@@ -92,8 +92,7 @@ if (request()->segment(1) == $admin_path && !in_array(request()->segment(2), ['l
                     Route::get('/' . $modul->post_parent[1] . '/{slug?}', 'post_parent');
                 }
                 if ($modul->api) {
-                    Route::get('api-list', 'api');
-                    Route::get('api-detail/{id}', 'api');
+                    Route::get('api_data/{id?}', 'api');
                 }
                 if ($modul->detail && request()->is($modul->name . '/*')) {
                     $attr['view_type'] = 'detail';

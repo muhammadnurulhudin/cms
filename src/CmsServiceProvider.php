@@ -36,16 +36,19 @@ class CmsServiceProvider extends ServiceProvider
     public function register()
     {
         Config::set('auth.providers.users.model', 'Udiko\Cms\Models\User');
-        if(env('PUBLIC_PATH')){
-            $this->app->usePublicPath(base_path().'/'.env('PUBLIC_PATH'));
+        if (env('PUBLIC_PATH')) {
+            $this->app->usePublicPath(base_path() . '/' . env('PUBLIC_PATH'));
         }
-        $this->app->bind('customRateLimiter', function ($app) {
-            return new RateLimiter($app['cache']->driver('file'),$app['request'],'loginpage',get_option('time_limit_login') ?? 3,get_option('limit_duration') ?? 60);
-        });
-        $this->app->bind('customRateLimiter', function ($app) {
-            return new RateLimiter($app['cache']->driver('file'),$app['request'],md5(url()->full()),get_option('time_limit_reload') ?? 3,get_option('limit_duration') ?? 60);
-        });
-    }
+        if (\DB::connection()->getPDO()) {
 
+            $this->app->bind('customRateLimiter', function ($app) {
+                return new RateLimiter($app['cache']->driver('file'), $app['request'], 'loginpage', get_option('time_limit_login') ?? 3, get_option('limit_duration') ?? 60);
+            });
+            $this->app->bind('customRateLimiter', function ($app) {
+                return new RateLimiter($app['cache']->driver('file'), $app['request'], md5(url()->full()), get_option('time_limit_reload') ?? 3, get_option('limit_duration') ?? 60);
+            });
+
+        }
+    }
 
 }
