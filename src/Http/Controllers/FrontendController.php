@@ -34,7 +34,7 @@ class FrontendController extends Controller
             $limit = get_option('limit_duration') ?? 60;
             $limiter->hit(md5(url()->full()), (int) $limit);
 
-            if (str()->contains(url()->full(), explode(",", str_replace(" ","",get_option('forbidden_keyword')??'')))) {
+            if (str()->contains(str()->lower(url()->full()), explode(",", str_replace(" ","",get_option('forbidden_keyword')??'')))) {
                 if ($redirect = get_option('forbidden_redirect'))
                     return redirect($redirect);
                 abort(403);
