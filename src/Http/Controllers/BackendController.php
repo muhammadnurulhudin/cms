@@ -178,21 +178,21 @@ class BackendController extends Controller
 
         if ($req->save) {
             $data = array(
-                'thumbnail_description' => $req->thumbnail_description ?? null,
+                'thumbnail_description' => strip_tags($req->thumbnail_description) ?? null,
                 'thumbnail' => $req->thumbnail ? $this->upload_thumb($req, $find) : (($req->save != 'add') ? $find->thumbnail : null),
                 'type' => get_post_type() ?? null,
-                'title' => $req->title ?? null,
+                'title' => $title = strip_tags($req->title) ?? null,
                 'content' => ($req->mime != 'html' && $find->mime != 'html') ? ($req->content ?? null) : $find->content,
-                'redirect_to' => $req->redirect_to ?? null,
+                'redirect_to' => strip_tags($req->redirect_to) ?? null,
                 'parent' => get_post_type() != 'menu' ? ($req->parent ?? null) : null,
                 'mime' => $req->mime ?? null,
-                'status' => $req->status ?? null,
-                'description' => get_post_type() != 'menu' ? ($req->description ?? null) : null,
-                'keyword' => $req->keyword ?? null,
+                'status' => strip_tags($req->status) ?? null,
+                'description' => get_post_type() != 'menu' ? (strip_tags($req->description) ?? null) : null,
+                'keyword' => strip_tags($req->keyword) ?? null,
                 'allow_comment' => $req->allow_comment ?? 0,
-                'slug' => Str::slug($req->title),
+                'slug' => $slug = !system_keyword(Str::slug($title)) ? Str::slug($title) : Str::slug($title.' '.str()->random(6)) ,
                 'pinned' => $req->pinned ?? 0,
-                'url' => get_post_type() != 'halaman' ? get_post_type() . '/' . Str::slug($req->title) : Str::slug($req->title),
+                'url' => get_post_type() != 'halaman' ? get_post_type() . '/' . $slug : $slug,
             );
 
             if ($req->save != 'save') {
@@ -200,7 +200,7 @@ class BackendController extends Controller
                 if ($req->mime == 'html') {
                     make_custom_view($id, $req->content);
                 }
-                if (Post::where('title', $req->title)->whereNotIn('id', [$id])->where('type', get_post_type())->count() > 0)
+                if (Post::where('title', $title)->whereNotIn('id', [$id])->where('type', get_post_type())->count() > 0)
                     return back()->with('danger', 'Upss...' . get_module_info('data_title') . ' Sudah digunakan !');
                 $find->update($data);
 
@@ -223,7 +223,7 @@ class BackendController extends Controller
                             $custom_field[$fieldname] = json_decode($req->$fieldname, true);
 
                         } else {
-                            $custom_field[$fieldname] = $req->$fieldname ?? null;
+                            $custom_field[$fieldname] = strip_tags($req->$fieldname) ?? null;
                         }
                     }
 
@@ -256,7 +256,7 @@ class BackendController extends Controller
                                         $cf = $as[$i];
                                         $h[$r] = (!is_string($cf)) ? $this->upload_file($cf, get_post_type(), $id, $find->created_at) : $cf;
                                     } else {
-                                        $h[$r] = $as[$i];
+                                        $h[$r] = strip_tags($as[$i]);
                                     }
                                 } else {
                                     $h[$r] = null;
@@ -633,14 +633,14 @@ class BackendController extends Controller
                 $key = _us($row);
                 if ($value = $request->$key) {
                     $find = $option->where('name', _us($row))->first();
-                    $find ? $find->update(['value' => $value]) : $option->create(['name' => _us($row), 'value' => $value, 'autoload' => 1]);
+                    $find ? $find->update(['value' => strip_tags($value)]) : $option->create(['name' => _us($row), 'value' => strip_tags($value), 'autoload' => 1]);
                 }
             }
             foreach (array_merge($data['security'], [['Admin Path', ''], ['Site Maintenance', '']]) as $row) {
                 $key = _us($row[0]);
                 if ($value = $request->$key) {
                     $find = $option->where('name', _us($row[0]))->first();
-                    $find ? $find->update(['value' => $value]) : $option->create(['name' => _us($row[0]), 'value' => $value, 'autoload' => 1]);
+                    $find ? $find->update(['value' => strip_tags($value)]) : $option->create(['name' => _us($row[0]), 'value' => strip_tags($value), 'autoload' => 1]);
                 }
             }
             foreach ($data['site_attribute'] as $row) {
@@ -656,7 +656,7 @@ class BackendController extends Controller
                 } else {
                     if ($value = $request->$key) {
                         $find = $option->where('name', $key)->first();
-                        $find ? $find->update(['value' => $value]) : $option->create(['name' => $key, 'value' => $value, 'autoload' => 1]);
+                        $find ? $find->update(['value' => strip_tags($value)]) : $option->create(['name' => $key, 'value' => strip_tags($value), 'autoload' => 1]);
                     }
                 }
             }

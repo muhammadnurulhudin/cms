@@ -868,6 +868,12 @@ if (!function_exists('get_group')) {
   return rtrim($res,', ');
   }
 }
+if (!function_exists('system_keyword')) {
+    function system_keyword($keyword){
+        $module_keyword = collect(get_module())->pluck('name')->toArray();
+        return in_array(str()->lower(strip_tags($keyword)), $module_keyword) ? true : false;
+  }
+}
 if (!function_exists('link_menu')) {
     function link_menu($menu=false){
     if($menu){
