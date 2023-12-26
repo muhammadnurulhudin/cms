@@ -4,10 +4,10 @@ namespace Udiko\Cms\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Udiko\Cms\Http\Controllers\VisitorController;
-use Illuminate\Session\Events\SessionStarted;
 use Str;
 use Udiko\Cms\Models\Post;
 use Udiko\Cms\Models\Group;
+use Udiko\Cms\Models\Comment;
 use Cache;
 use View;
 use Illuminate\Cache\RateLimiter;
@@ -84,6 +84,16 @@ class FrontendController extends Controller
         $modul = get_module(get_post_type());
         $detail = $post->detail(get_post_type(), $slug);
         abort_if(empty($detail), '404');
+        if($request->comment_sender){
+            $detail->comments()->create([
+                'name' => strip_tags($request->name),
+                'email' => strip_tags($request->email),
+                'content' => nl2br(strip_tags($request->content)),
+                'link' => strip_tags($request->link),
+            ]);
+            $request->session()->regenerateToken();
+            return back()->with('success', 'Tanggapan Berhasil Dikirim');
+        }
         if ($detail->slug != $slug)
             return redirect($detail->url);
         if ($this->counted) {

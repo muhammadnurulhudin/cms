@@ -16,9 +16,10 @@ return new class extends Migration
             $table->foreignUuid('post_id')->constrained()->onDelete('CASCADE');
             $table->foreignUuid('user_id')->nullable()->constrained()->onDelete('CASCADE')->nullable();
             $table->foreignUuid('parent')->nullable();
-            $table->string('name');
-            $table->longText('content');
-            $table->string('email');
+            $table->string('name')->nullable();
+            $table->longText('content')->nullable();
+            $table->string('email')->nullable();
+            $table->string('link')->nullable();
             $table->tinyInteger('status')->default('0');
             $table->timestamps();
         });

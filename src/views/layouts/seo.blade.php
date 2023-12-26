@@ -38,3 +38,4 @@
   gtag('config', '{{$gac}}');
 </script>
   @endif
+  @stack('styles')

@@ -3,14 +3,9 @@ namespace Udiko\Cms\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Pagination\Paginator;
-use Illuminate\Support\Collection;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-
+use View;
 class Post extends Model
 {
     use HasFactory, HasUuids;
@@ -60,16 +55,6 @@ class Post extends Model
         return $limit ? $res->comments->where('status', 1)->take($limit) : $res->comments->where('status', 1);
     }
 
-    function comments_form($detail)
-    {
-        if ($detail->allow_comment == 1) {
-            //  $com = paginate($detail->comments->where('status',1));
-//    return  View::make('comments_form',compact('com'));
-        } else {
-            return null;
-        }
-    }
-
     function index_limit($type, $limit)
     {
         return $this->cachedpost()->where('type', $type)->take($limit);
@@ -104,6 +89,13 @@ class Post extends Model
     function index_recent($type, $except = false)
     {
         return $except ? $this->cachedpost()->whereNotIn('id', $except)->where('type', $type)->take(5) : $this->cachedpost()->where('type', $type)->take(5);
+    }
+    function comments_box(){
+        if($data = config('modules.data')){
+            if($data->allow_comment==1)
+            return View::make('views::layouts.comments',['data'=>$data->comments->where('status',1)->sortByDesc('created_at')]);
+
+        }
     }
     function index_child($id, $type = false)
     {

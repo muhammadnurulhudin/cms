@@ -97,7 +97,7 @@ if (request()->segment(1) == $admin_path && !in_array(request()->segment(2), ['l
                 if ($modul->detail && request()->is($modul->name . '/*')) {
                     $attr['view_type'] = 'detail';
                     $attr['view_path'] = $modul->name . '.detail';
-                    Route::get('/{slug}', 'detail');
+                    Route::match(['get','post'],'/{slug}', 'detail');
 
                 }
                 if ($modul->group && request()->is($modul->name . '/category/*')) {
