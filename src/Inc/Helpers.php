@@ -308,7 +308,7 @@ if (!function_exists('add_module')) {
 if (!function_exists('_field')) {
     function _field($r, $k, $link = false)
     {
-        $data = $r->data_field;
+        $data = !empty($r) ? $r->data_field : null;
         return (isset(json_decode($data, true)[$k])) ? ($link ? (Str::contains(json_decode($data)->$k, 'http') ? '<a href="' . strip_tags(json_decode($data)->$k) . '">' . str_replace(['http://', 'https://'], '', json_decode($data)->$k) . '</a>' : json_decode($data)->$k) : json_decode($data)->$k) : NULL;
     }
 }
@@ -578,7 +578,9 @@ if (!function_exists('get_menu')) {
     function get_menu($name, $id = false)
     {
         $menu = Cache::get('post')->where('type', 'menu')->where('slug', $name)->first();
+        if($menu)
         return $id ? collect(json_decode($menu->data_loop))->where('parent', $id) : collect(json_decode($menu->data_loop))->where('parent', 0);
+        return collect([]);
     }
 }
 if (!function_exists('kaedah')) {
