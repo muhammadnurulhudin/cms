@@ -608,9 +608,12 @@ class BackendController extends Controller
             ['Deskripsi Situs Web', 'site_description', 'text'],
             ['SEO Meta Keyword', 'site_meta_keyword', 'text'],
             ['SEO Meta Description', 'site_meta_description', 'text'],
+            ['Google Verification Code', 'google_verification_code', 'text'],
+            ['Google Analytics Code', 'google_analytics_code', 'text'],
             ['Postingan Perhalaman', 'post_perpage', 'number'],
             ['Logo', 'logo', 'file'],
             ['Favicon', 'favicon', 'file'],
+            ['Preview', 'preview', 'file'],
         );
 
         $data['security'] = array(
