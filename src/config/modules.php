@@ -538,4 +538,5 @@ return [
         'used'=> array(),
         'current'=> null,
         'data'=> null,
+        'sid'=> session()->getId()
 ];
