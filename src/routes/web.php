@@ -127,7 +127,7 @@ if (request()->segment(1) == $admin_path && !in_array(request()->segment(2), ['l
     $attr['post_type'] = 'halaman';
     $attr['view_type'] = 'detail';
     $attr['view_path'] = 'halaman.detail';
-    Route::get('/{slug}', [\Udiko\Cms\Http\Controllers\FrontendController::class, 'detail'])->middleware('web');
+    Route::match(['get','post'],'/{slug}', [\Udiko\Cms\Http\Controllers\FrontendController::class, 'detail'])->middleware('web');
     config([
         'modules.current' => $attr
     ]);
