@@ -7,7 +7,6 @@ use Udiko\Cms\Http\Controllers\VisitorController;
 use Str;
 use Udiko\Cms\Models\Post;
 use Udiko\Cms\Models\Group;
-use Udiko\Cms\Models\Comment;
 use Cache;
 use View;
 use Illuminate\Cache\RateLimiter;
@@ -24,10 +23,7 @@ class FrontendController extends Controller
             $visitor = VisitorController::lastvisit();
             $this->counted = VisitorController::visitor_counter($visitor);
             View::share('visitor', VisitorController::hitStats($visitor));
-            if (!Cache::has('post')) {
-                regenerate_cache();
-                recache_option();
-            }
+
             if ($limiter->tooManyAttempts('page'.getRateLimiterKey($request), get_option('time_limit_reload') ?? 3)) {
                 abort(429);
             }

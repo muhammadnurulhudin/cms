@@ -2,11 +2,9 @@
 namespace Udiko\Cms;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Config;
-use Illuminate\Support\Facades\Session;
+use Cache;
 class CmsServiceProvider extends ServiceProvider
 {
 
@@ -27,6 +25,10 @@ class CmsServiceProvider extends ServiceProvider
             isset($config) ? config(['modules.config'=>$config]) : exit('No Config Found! Please define minimal  $config["web_type"] = "Your Web Type"; at path '.resource_path('views/template/' . template() . '/modules.php'));
         }
         $this->loadRoutesFrom(__DIR__ . "/routes/web.php");
+        if (!Cache::has('post') && \DB::connection()->getPDO()) {
+            regenerate_cache();
+            recache_option();
+        }
 
     }
     /**
