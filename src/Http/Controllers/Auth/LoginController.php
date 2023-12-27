@@ -45,11 +45,11 @@ class LoginController extends Controller
     public function loginSubmit(Request $request,RateLimiter $limiter,User $user)
     {
 
-        if ($limiter->tooManyAttempts('login', get_option('time_limit_login') ?? 3)) {
+        if ($limiter->tooManyAttempts('login'.getRateLimiterKey($request), get_option('time_limit_login') ?? 3)) {
             return abort(429);
         }
         $limit = get_option('limit_duration') ??  60;
-        $limiter->hit('login', (int)$limit);
+        $limiter->hit('login'.getRateLimiterKey($request), (int)$limit);
         if($request->username && $request->password)
         {
             $credentials = $request->validate([

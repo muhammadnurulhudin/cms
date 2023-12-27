@@ -952,3 +952,11 @@ if (!function_exists( 'undermaintenance')) {
   exit;
   }
 }
+
+if (!function_exists( 'getRateLimiterKey')) {
+    function getRateLimiterKey($req)
+{
+    // Modify this method to create a unique key based on IP and session ID
+    return md5($req->ip() . '|' . $req->userAgent() .'|'.url()->full().'|'.$req->header('referer'));
+}
+}

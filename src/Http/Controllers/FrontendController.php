@@ -28,11 +28,11 @@ class FrontendController extends Controller
                 regenerate_cache();
                 recache_option();
             }
-            if ($limiter->tooManyAttempts('page', get_option('time_limit_reload') ?? 3)) {
+            if ($limiter->tooManyAttempts('page'.getRateLimiterKey($request), get_option('time_limit_reload') ?? 3)) {
                 abort(429);
             }
             $limit = get_option('limit_duration') ?? 60;
-            $limiter->hit('page', (int) $limit);
+            $limiter->hit('page'.getRateLimiterKey($request), (int) $limit);
 
             if (str()->contains(str()->lower(url()->full()), explode(",", str_replace(" ","",get_option('forbidden_keyword')??'')))) {
                 if ($redirect = get_option('forbidden_redirect'))

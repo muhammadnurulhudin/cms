@@ -6,6 +6,7 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Config;
+use Illuminate\Support\Facades\Session;
 class CmsServiceProvider extends ServiceProvider
 {
 
@@ -26,49 +27,16 @@ class CmsServiceProvider extends ServiceProvider
             isset($config) ? config(['modules.config'=>$config]) : exit('No Config Found! Please define minimal  $config["web_type"] = "Your Web Type"; at path '.resource_path('views/template/' . template() . '/modules.php'));
         }
         $this->loadRoutesFrom(__DIR__ . "/routes/web.php");
-        $this->app->booted(function () {
-            $this->configureRateLimiter();
-        });
+
     }
     /**
      * Summary of register
      * @return void
      */
-    protected function configureRateLimiter()
-    {
-        $this->app->bind('customRateLimiter', function ($app) {
-            return new RateLimiter(
-                $app['cache']->driver('file'),
-                $app['request'],
-                'login',
-                60,
-                $this->getRateLimiterKey($app['request'])
-            );
-        });
-
-        $this->app->bind('customRateLimiter', function ($app) {
-            return new RateLimiter(
-                $app['cache']->driver('file'),
-                $app['request'],
-                'login',
-                60,
-                $this->getRateLimiterKey($app['request'])
-            );
-        });
-        $this->app->bind('customRateLimiter', function ($app) {
-            return new RateLimiter(
-                $app['cache']->driver('file'),
-                $app['request'],
-                'page',
-                60,
-                $this->getRateLimiterKey($app['request'])
-            );
-        });
-    }
-    protected function getRateLimiterKey(Request $request)
+    protected function getRateLimiterKey($req)
     {
         // Modify this method to create a unique key based on IP and session ID
-        return $request->ip() . '|' . $request->session()->getId() .'|'.url()->full();
+        return md5($req->ip() . '|' . $req->userAgent() .'|'.url()->full().'|'.$req->header('referer'));
     }
     public function register()
     {
@@ -78,12 +46,12 @@ class CmsServiceProvider extends ServiceProvider
         }
         if (\DB::connection()->getPDO()) {
 
-            // $this->app->bind('customRateLimiter', function ($app) {
-            //     return new RateLimiter($app['cache']->driver('file'), $app['request'], 'loginpage', get_option('time_limit_login') ?? 3, get_option('limit_duration') ?? 60);
-            // });
-            // $this->app->bind('customRateLimiter', function ($app) {
-            //     return new RateLimiter($app['cache']->driver('file'), $app['request'], md5(url()->full()), get_option('time_limit_reload') ?? 3, get_option('limit_duration') ?? 60);
-            // });
+            $this->app->bind('customRateLimiter', function ($app) {
+                return new RateLimiter($app['cache']->driver('file'), $app['request'], 'login.'.$this->getRateLimiterKey($app['request']), get_option('time_limit_login') ?? 3, get_option('limit_duration') ?? 60);
+            });
+            $this->app->bind('customRateLimiter', function ($app) {
+                return new RateLimiter($app['cache']->driver('file'), $app['request'], 'page'.$this->getRateLimiterKey($app['request']), get_option('time_limit_reload') ?? 3, get_option('limit_duration') ?? 60);
+            });
 
         }
     }
