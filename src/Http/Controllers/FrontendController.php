@@ -24,19 +24,19 @@ class FrontendController extends Controller
             $this->counted = VisitorController::visitor_counter($visitor);
             View::share('visitor', VisitorController::hitStats($visitor));
 
-            if ($limiter->tooManyAttempts('page'.getRateLimiterKey($request), get_option('time_limit_reload') ?? 3)) {
+            if ($limiter->tooManyAttempts('page' . getRateLimiterKey($request), get_option('time_limit_reload') ?? 3)) {
                 abort(429);
             }
             $limit = get_option('limit_duration') ?? 60;
-            $limiter->hit('page'.getRateLimiterKey($request), (int) $limit);
+            $limiter->hit('page' . getRateLimiterKey($request), (int) $limit);
 
-            if (str()->contains(str()->lower(url()->full()), explode(",", str_replace(" ","",get_option('forbidden_keyword')??'')))) {
+            if (str()->contains(str()->lower(url()->full()), explode(",", str_replace(" ", "", get_option('forbidden_keyword') ?? '')))) {
                 if ($redirect = get_option('forbidden_redirect'))
                     return redirect($redirect);
                 abort(403);
             }
 
-            if(get_option('block_ip') && in_array($request->ip(),explode(",",get_option('block_ip')))){
+            if (get_option('block_ip') && in_array($request->ip(), explode(",", get_option('block_ip')))) {
                 abort(403);
             }
             return $next($request);
@@ -47,20 +47,21 @@ class FrontendController extends Controller
         return get_option('home_page') == 'default' ? view('views::layouts.master') : view('custom_view.' . get_option('home_page'));
     }
 
-    public function api(Request $req, Post $post, $id=null){
-        abort_if(get_option('allow_api_request') && !in_array($req->ip(), explode(",", get_option('allow_api_request'))),403);
-        if($id){
+    public function api(Request $req, Post $post, $id = null)
+    {
+        abort_if(get_option('allow_api_request') && !in_array($req->ip(), explode(",", get_option('allow_api_request'))), 403);
+        if ($id) {
             return response([
-                'code'=>200,
-                'status'=>"success",
-                'data'=>$post->with('user')->whereStatus('publish')->findOrFail($id)
-            ],200);
+                'code' => 200,
+                'status' => "success",
+                'data' => $post->with('user')->whereStatus('publish')->findOrFail($id)
+            ], 200);
         }
         return response([
-            'code'=>200,
-            'status'=>"success",
-            'data'=>$post->index(get_post_type(), true)
-        ],200);
+            'code' => 200,
+            'status' => "success",
+            'data' => $post->index(get_post_type(), true)
+        ], 200);
 
     }
     public function index(Post $post)
@@ -80,7 +81,7 @@ class FrontendController extends Controller
         $modul = get_module(get_post_type());
         $detail = $post->detail(get_post_type(), $slug);
         abort_if(empty($detail), '404');
-        if($request->comment_sender){
+        if ($request->comment_sender) {
             $detail->comments()->create([
                 'name' => strip_tags($request->name),
                 'email' => strip_tags($request->email),
@@ -116,9 +117,11 @@ class FrontendController extends Controller
             return redirect($group->url);
         config(['modules.page_name' => 'Daftar ' . $modul->title . ' dikategori ' . $group->name]);
         $data = array(
-            'index' => paginate($post->index_by_group(get_post_type(), $slug)), 'title' => $group->name,
+            'index' => paginate($post->index_by_group(get_post_type(), $slug)),
+            'title' => $group->name,
             'icon' => $modul->icon,
-            'post_type' => $modul->name);
+            'post_type' => $modul->name
+        );
         return view('views::layouts.master', $data);
     }
     public function search(Request $request, Post $post, $slug = null)
