@@ -171,7 +171,7 @@ if (!function_exists('active_item')) {
     function active_item($val)
     {
         if (Request::is(admin_path() . '/' . $val) || Request::is(admin_path() . '/' . $val . '/*') || Request::is(admin_path() . '/' . $val . '/*/*'))
-            return 'active';
+        return 'active';
     }
 }
 if (!function_exists('admin_url')) {

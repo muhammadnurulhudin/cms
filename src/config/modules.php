@@ -355,12 +355,12 @@ return [
             'api' => false,
             'archive' => false,
             'index' => false,
-            'detail' => false,
+            'detail' => true,
             'operator' => false,
-            'public' => false,
+            'public' => true,
             'history' => false,
             'auto_query' => false,
-            'auto_load' => false,
+            'auto_load' => true,
             'crud' => ['create','read','update','delete'],
             'active' => true,
 
@@ -538,5 +538,5 @@ return [
         'used'=> array(),
         'current'=> null,
         'data'=> null,
-        'sid'=> session()->getId()
+        'domain'=>null
 ];

@@ -61,7 +61,7 @@ class LoginController extends Controller
 
           }
             // unset($credentials['g-recaptcha-response']);
-        if(Auth::attempt($credentials))
+        if(Auth::attempt(array('username'=>$request->username,'password'=>$request->password,'host'=>$request->getHttpHost())))
         {
             $request->session()->regenerate();
             if(Auth::user()->status == 'Aktif'){

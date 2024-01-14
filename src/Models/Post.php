@@ -110,7 +110,10 @@ class Post extends Model
         return $this->cachedpost()->where('type', $type)->first();
     }
     }
-
+    function detail_by_title($type, $title )
+    {
+        return $this->cachedpost()->where('type', $type)->where('title',$title)->first();
+    }
     public function history($post_id, $currenttime)
     {
         if (get_module(get_post_type())->history) {

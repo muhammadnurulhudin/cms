@@ -20,15 +20,20 @@ class CmsServiceProvider extends ServiceProvider
             __DIR__ . '/views/errors' => resource_path('views/errors'),
             __DIR__ . '/views/template' => resource_path('views/template')
         ], 'cms');
-        if(file_exists(resource_path('views/template/'.template().'/modules.php'))){
-            require_once(resource_path('views/template/' . template() . '/modules.php'));
-            isset($config) ? config(['modules.config'=>$config]) : exit('No Config Found! Please define minimal  $config["web_type"] = "Your Web Type"; at path '.resource_path('views/template/' . template() . '/modules.php'));
+        if(file_exists(resource_path('views/template/'.template().'/modules.blade.php'))){
+            require_once(resource_path('views/template/' . template() . '/modules.blade.php'));
+            isset($config) ? config(['modules.config'=>$config]) : exit('No Config Found! Please define minimal  $config["web_type"] = "Your Web Type"; at path '.resource_path('views/template/' . template() . '/modules.blade.php'));
+        }
+        if (\DB::connection()->getPDO()) {
+            if (!Cache::has('post')) {
+                regenerate_cache();
+                recache_option();
+            }
+            if ($domain = get_post()->detail_by_title('domain', request()->getHttpHost())) {
+                Config::set('modules.domain', $domain);
+            }
         }
         $this->loadRoutesFrom(__DIR__ . "/routes/web.php");
-        if (!Cache::has('post') && \DB::connection()->getPDO()) {
-            regenerate_cache();
-            recache_option();
-        }
 
     }
     /**
@@ -54,6 +59,7 @@ class CmsServiceProvider extends ServiceProvider
             $this->app->bind('customRateLimiter', function ($app) {
                 return new RateLimiter($app['cache']->driver('file'), $app['request'], 'page'.$this->getRateLimiterKey($app['request']), get_option('time_limit_reload') ?? 3, get_option('limit_duration') ?? 60);
             });
+
 
         }
     }

@@ -2,7 +2,7 @@
 @section('content')
 <!-- <link href="https://coderthemes.com/adminox/layouts/vertical/assets/css/icons.min.css" rel="stylesheet" type="text/css" /> -->
 <div class="row">
-<div class="col-lg-12"><h3 style="font-weight:normal"> <i class="fa fa-tachometer"></i> Dashboard {{tesfungsi()}}</h3>
+<div class="col-lg-12"><h3 style="font-weight:normal"> <i class="fa fa-tachometer"></i> Dashboard </h3>
   <br>
   <div class="row">
     @foreach($type as $row)

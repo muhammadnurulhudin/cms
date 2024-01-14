@@ -1,4 +1,7 @@
 <?php
+if($domain = config('modules.domain')):
+
+else:
 $admin_path = admin_path();
 Route::get('setup', [Udiko\Cms\Http\Controllers\SetupController::class, 'index']);
 Route::get($admin_path . '/login', [Udiko\Cms\Http\Controllers\Auth\LoginController::class, 'loginForm'])->middleware('web')->name('login');
@@ -142,4 +145,5 @@ if (request()->segment(1) == $admin_path && !in_array(request()->segment(2), ['l
 
 }
 
+endif;
 
