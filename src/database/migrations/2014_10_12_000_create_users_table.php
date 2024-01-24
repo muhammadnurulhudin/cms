@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('photo')->nullable();
             $table->string('level')->default('admin');
             $table->string('url')->unique();
+            $table->string('host')->nullable();
             $table->string('status');
             $table->string('last_login_ip')->nullable();
             $table->datetime('last_login_at')->nullable();

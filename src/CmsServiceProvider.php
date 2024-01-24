@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Http\Request;
 use Config;
 use Cache;
+use Illuminate\Support\Facades\Schema;
 class CmsServiceProvider extends ServiceProvider
 {
 
@@ -24,17 +25,17 @@ class CmsServiceProvider extends ServiceProvider
             require_once(resource_path('views/template/' . template() . '/modules.blade.php'));
             isset($config) ? config(['modules.config'=>$config]) : exit('No Config Found! Please define minimal  $config["web_type"] = "Your Web Type"; at path '.resource_path('views/template/' . template() . '/modules.blade.php'));
         }
-        if (\DB::connection()->getPDO()) {
+        if (\DB::connection()->getPDO() &&$this->checkAllTable()) {
             if (!Cache::has('post')) {
                 regenerate_cache();
                 recache_option();
-            }
-            if ($domain = get_post()->detail_by_title('domain', request()->getHttpHost())) {
-                Config::set('modules.domain', $domain);
+            } else {
+                if ($domain = get_post()->detail_by_title('domain', request()->getHttpHost())) {
+                    Config::set('modules.domain', $domain);
+                }
             }
         }
         $this->loadRoutesFrom(__DIR__ . "/routes/web.php");
-
     }
     /**
      * Summary of register
@@ -51,7 +52,7 @@ class CmsServiceProvider extends ServiceProvider
         if (env('PUBLIC_PATH')) {
             $this->app->usePublicPath(base_path() . '/' . env('PUBLIC_PATH'));
         }
-        if (\DB::connection()->getPDO()) {
+        if (\DB::connection()->getPDO() && $this->checkAllTable()) {
 
             $this->app->bind('customRateLimiter', function ($app) {
                 return new RateLimiter($app['cache']->driver('file'), $app['request'], 'login.'.$this->getRateLimiterKey($app['request']), get_option('time_limit_login') ?? 3, get_option('limit_duration') ?? 60);
@@ -63,5 +64,7 @@ class CmsServiceProvider extends ServiceProvider
 
         }
     }
-
+function checkAllTable(){
+    return (Schema::hasTable('users') && Schema::hasTable('posts') && Schema::hasTable('groups') && Schema::hasTable('visitors') && Schema::hasTable('comments') && Schema::hasTable('group_post') && Schema::hasTable('options')) ? true : false;
+}
 }

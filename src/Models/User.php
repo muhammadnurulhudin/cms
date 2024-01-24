@@ -28,6 +28,7 @@ class User extends Authenticatable
         'status',
         'photo',
         'email',
+        'host',
         'url',
         'slug',
         'last_login_ip',
