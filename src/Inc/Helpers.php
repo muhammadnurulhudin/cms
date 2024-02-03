@@ -68,6 +68,16 @@ if (!function_exists('size')) {
         return file_exists(public_path($file)) ? size_as_kb(File::size(public_path($file))) : 0;
     }
 }
+
+if (!function_exists(function: 'domain')) {
+    function domain($attr)
+    {
+        if($domain = config('modules.domain')){
+            return _field($domain, $attr) ?? null;
+        }
+        return null;
+    }
+}
 if (!function_exists('media_store')) {
 
     function media_store($parent, $mime, $path, $name, $title)

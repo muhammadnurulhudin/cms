@@ -25,7 +25,7 @@ class CmsServiceProvider extends ServiceProvider
             require_once(resource_path('views/template/' . template() . '/modules.blade.php'));
             isset($config) ? config(['modules.config'=>$config]) : exit('No Config Found! Please define minimal  $config["web_type"] = "Your Web Type"; at path '.resource_path('views/template/' . template() . '/modules.blade.php'));
         }
-        if (\DB::connection()->getPDO() &&$this->checkAllTable()) {
+        if (\DB::connection()->getPDO() && $this->checkAllTable()) {
             if (!Cache::has('post')) {
                 regenerate_cache();
                 recache_option();
