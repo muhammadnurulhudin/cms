@@ -63,10 +63,8 @@ window.onload = function() {
 <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
   </head>
   <body id="body" class="app sidebar-mini" >
-  @include('views::backend.layout.header')
-  @include('esurat::backend.layout.sidebar')
-
-
+  @include('views::extension.layout.header')
+  @include('views::extension.layout.sidebar')
   <main class="app-content" style="background: #F0F0F1">
     <style>
     body {

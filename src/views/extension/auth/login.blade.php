@@ -8,7 +8,7 @@
     <link rel="stylesheet" type="text/css" href="{{url('backend/css/main.css')}}">
     <!-- Font-icon css-->
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <title>Masuk - {{get_option('site_title')}}</title>
+    <title>Masuk - {{domain('app_name')}} {{get_option('site_title')}}</title>
     <link rel="shortcut icon" href="{{url(get_option('favicon'))}}" />
     <meta property="og:title" content="Masuk - {{get_option('site_title')}}" />
 <meta property="og:image" content="{{url(get_option('logo'))}}" />
@@ -27,10 +27,10 @@
             <img height="80" src="{{secure_asset(get_option('favicon'))}}">
             <br>
             <br>
-            <h4 class="text-warning">{{get_option('site_title')}}</h4>
+            <h4 class="text-warning">{{domain('app_name')}}<br>{{domain('description')}}</h4>
             <br>
 
-            @if(get_option('site_maintenance')=='Y')
+            @if(domain('status_maintenance')=='Aktif')
             <p class="badge badge-danger">Modus Perbaikan Aktif</p>
 
             @endif
@@ -51,7 +51,7 @@
                 <input id="password" placeholder="*****" type="password" class="form-control form-control-lg " name="password" required autocomplete="current-password" autofocus>
           </div>
           <div class="form-group">
-            <img src="{{route('captcha')}}" alt=""> <input type="text" name="captcha" placeholder="Masukkan Kode..." required  style="border:none;float:right;height: 40px;">
+            <img src="{{url('captcha?token='.time())}}" alt=""> <input type="text" name="captcha" placeholder="Masukkan Kode..." required  style="border:none;float:right;height: 40px;">
           </div>
 
           <div class="form-group btn-container">

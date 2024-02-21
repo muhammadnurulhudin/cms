@@ -14,13 +14,13 @@
                 aria-label="Open Profile Menu"><i class="fa fa-user fa-lg"></i></a>
             <ul class="dropdown-menu settings-menu dropdown-menu-right">
                 @if(request()->user()->level=='admin')
-                <li><a class="dropdown-item" href="{{ route('pengaturan') }}"><i class="fa fa-cog fa-lg"></i>
+                <li><a class="dropdown-item" href=""><i class="fa fa-cog fa-lg"></i>
                         Settings</a></li>
                         @endif
-                <li><a class="dropdown-item" href="{{ route('akun') }}"><i class="fa fa-user fa-lg"></i> Profile</a>
+                <li><a class="dropdown-item" href=""><i class="fa fa-user fa-lg"></i> Profile</a>
                 </li>
                 <li>
-                    <a class="dropdown-item" href="{{ route('logout') }}"><i class="fa fa-sign-out fa-lg"></i> Logout</a>
+                    <a class="dropdown-item" href=""><i class="fa fa-sign-out fa-lg"></i> Logout</a>
 
                 </li>
             </ul>

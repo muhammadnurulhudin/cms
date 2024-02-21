@@ -1,26 +1,23 @@
 <?php
-if($domain = config('modules.domain')):
+    $info = config('modules.domain');
+    $admin_path = $info ? (_field($info,'login_path') ?? 'admin' ) : (admin_path()??'admin');
+    // Route::get('setup', [Udiko\Cms\Http\Controllers\SetupController::class, 'index']);
+    Route::get($admin_path.'/login' , [Udiko\Cms\Http\Controllers\Auth\LoginController::class, 'loginForm'])->middleware('web')->name('login');
+    Route::get($admin_path.'/captcha', [Udiko\Cms\Http\Controllers\Auth\LoginController::class, 'generateCaptcha'])->middleware('web')->name('captcha');
+    Route::post($admin_path.'/login' , [Udiko\Cms\Http\Controllers\Auth\LoginController::class, 'loginSubmit'])->middleware('web')->name('login.submit');
+    Route::match(['post', 'get'], $admin_path.'/logout', [Udiko\Cms\Http\Controllers\Auth\LoginController::class, 'logout'])->middleware('web')->name('logout');
+    Route::get($admin_path.'/dashboard', [Udiko\Cms\Http\Controllers\Auth\NoSession::class, 'index'])->name('dashboard');
+    Route::get($admin_path , [Udiko\Cms\Http\Controllers\Auth\LoginController::class, 'loginForm'])->middleware('auth');
+    Route::get('home', [Udiko\Cms\Http\Controllers\Auth\NoSession::class, 'index'])->middleware('web');
 
-else:
-$admin_path = admin_path();
-Route::get('setup', [Udiko\Cms\Http\Controllers\SetupController::class, 'index']);
-Route::get($admin_path . '/login', [Udiko\Cms\Http\Controllers\Auth\LoginController::class, 'loginForm'])->middleware('web')->name('login');
-Route::get($admin_path . '/captcha', [Udiko\Cms\Http\Controllers\Auth\LoginController::class, 'generateCaptcha'])->middleware('web')->name('captcha');
-
-Route::post($admin_path . '/login', [Udiko\Cms\Http\Controllers\Auth\LoginController::class, 'loginSubmit'])->middleware('web')->name('login.submit');
-Route::match(['post', 'get'], $admin_path . '/logout', [Udiko\Cms\Http\Controllers\Auth\LoginController::class, 'logout'])->middleware('web')->name('logout');
-
-
-Route::get($admin_path, function () use ($admin_path) {
-    return redirect($admin_path . '/login');
-});
-Route::get('home', [Udiko\Cms\Http\Controllers\Auth\NoSession::class, 'index'])->middleware('web');
+if(!config('modules.domain')):
 if (request()->segment(1) == $admin_path && !in_array(request()->segment(2), ['login', 'logout'])) {
 
     Route::controller(\Udiko\Cms\Http\Controllers\BackendController::class)
         ->prefix($admin_path)
         ->middleware('web')
         ->group(function () use ($admin_path) {
+
             foreach (get_module() as $value) {
                 if (request()->segment(2) == $value->name) {
 
@@ -147,3 +144,6 @@ if (request()->segment(1) == $admin_path && !in_array(request()->segment(2), ['l
 
 endif;
 
+Route::get($admin_path,function(){
+    return to_route('login');
+});

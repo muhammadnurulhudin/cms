@@ -10,7 +10,7 @@ class NoSession extends Controller
     function index()
     {
         if (Auth::check()) {
-            return redirect(admin_path() . '/dashboard');
+        return to_route('dashboard');
         } else {
             abort('404');
         }

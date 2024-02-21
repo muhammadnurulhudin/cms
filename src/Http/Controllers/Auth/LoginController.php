@@ -7,6 +7,7 @@ use Illuminate\Cache\RateLimiter;
 use Auth;
 use Str;
 use Session;
+use Cookie;
 class LoginController extends Controller
 {
 
@@ -32,7 +33,7 @@ class LoginController extends Controller
         imagedestroy($image);
         if(!request()->headers->get('referer') ){
         // request()->session()->regenerateToken();
-        return redirect(admin_path());
+        return redirect('/');
         }
         return response($captchaImage)->header('Content-type', 'image/png');
     }
@@ -57,7 +58,7 @@ class LoginController extends Controller
                 'password' => 'required'
             ]);
           if($request->captcha != session('captcha')){
-        return back()->with('error','Captcha Tidak Valid!');
+            return back()->with('error','Captcha Tidak Valid!');
 
           }
             // unset($credentials['g-recaptcha-response']);
@@ -66,6 +67,8 @@ class LoginController extends Controller
             $request->session()->regenerate();
             if(Auth::user()->status == 'Aktif'){
            Auth::user()->update(['last_login_at'=>now(),'last_login_ip'=>request()->ip()]);
+
+
             }
             else{
                 Auth::logout();

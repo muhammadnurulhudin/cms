@@ -329,7 +329,8 @@ return [
             'custom_field' => array(
                 ['App Info', 'break'],
                 ['App Name', 'text','required'],
-                ['Description', 'text','required'],
+                ['App Description', 'text','required'],
+                ['App Path', 'text','required'],
                 ['Assets', 'break'],
                 ['Favicon', 'file'],
                 ['Logo', 'file'],
